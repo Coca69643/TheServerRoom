@@ -1,0 +1,7 @@
+{
+  "name": "The Server Room",
+  "short_name": "ServerRoom",
+  "start_url": "index.html",
+  "display": "fullscreen",
+  "orientation": "landscape"
+}

@@ -1,0 +1,372 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: #0a0a0a;
+    color: #00ff00;
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.game-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+}
+
+/* === BARRA DE STATUS === */
+.status-bar {
+    background: #000;
+    border-bottom: 2px solid #00ff00;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 255, 0, 0.3);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.label {
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.heat-bar {
+    width: 120px;
+    height: 18px;
+    background: #001a00;
+    border: 2px solid #00ff00;
+    position: relative;
+    overflow: hidden;
+}
+
+.heat-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px currentColor;
+}
+
+.heat-value {
+    min-width: 35px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.time {
+    font-size: 13px;
+}
+
+#gameTime {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    font-weight: bold;
+}
+
+/* === MONITOR CRT === */
+.monitor-display {
+    flex: 1;
+    position: relative;
+    background: #000;
+    margin: 10px;
+    border: 3px solid #333;
+    box-shadow: 
+        inset 0 0 50px rgba(0, 255, 0, 0.1),
+        0 0 20px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+}
+
+/* Efeito Scanlines (Linhas de TV) */
+.scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 10;
+    animation: scanline-move 8s linear infinite;
+}
+
+@keyframes scanline-move {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(10px); }
+}
+
+/* Brilho CRT Verde */
+.crt-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 255, 0, 0.05) 0%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 5;
+}
+
+.display-content {
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+    position: relative;
+    z-index: 1;
+}
+
+/* === CÂMERA === */
+.camera-feed {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.camera-header {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid #00ff00;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.camera-label {
+    font-weight: bold;
+    font-size: 14px;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.camera-time {
+    font-size: 13px;
+}
+
+.camera-view {
+    flex: 1;
+    background: #000;
+    border: 2px solid #00ff00;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.boot-screen {
+    text-align: center;
+}
+
+.ascii-art {
+    font-size: 6px;
+    line-height: 1.2;
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+    margin-bottom: 20px;
+}
+
+.boot-text {
+    font-size: 12px;
+    margin: 10px 0;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.blink {
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.3; }
+}
+
+.camera-footer {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid #ff0000;
+    padding: 6px 12px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.footer-text {
+    color: #ff0000;
+    font-size: 11px;
+    text-shadow: 0 0 5px #ff0000;
+    animation: blink 2s infinite;
+}
+
+/* === CONTROLES DE CÂMERAS === */
+.camera-controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    gap: 10px;
+    background: #000;
+    border-top: 2px solid #00ff00;
+}
+
+.controls-left,
+.controls-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.cam-button,
+.system-button {
+    background: linear-gradient(180deg, #002200 0%, #001100 100%);
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 12px 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+.cam-button:active,
+.system-button:active {
+    background: linear-gradient(180deg, #003300 0%, #002200 100%);
+    box-shadow: 
+        0 0 15px rgba(0, 255, 0, 0.5),
+        inset 0 0 10px rgba(0, 255, 0, 0.3);
+    transform: scale(0.95);
+}
+
+.cam-number {
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 8px #00ff00;
+}
+
+.cam-name {
+    font-size: 9px;
+    opacity: 0.8;
+}
+
+.system-button {
+    background: linear-gradient(180deg, #220000 0%, #110000 100%);
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+.system-button:active {
+    background: linear-gradient(180deg, #330000 0%, #220000 100%);
+    box-shadow: 
+        0 0 15px rgba(255, 0, 0, 0.5),
+        inset 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.system-button .cam-number {
+    text-shadow: 0 0 8px #ff0000;
+}
+
+/* === ALERTA DE SUPERAQUECIMENTO === */
+.overheat-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.overheat-warning.active {
+    display: flex;
+}
+
+.warning-content {
+    text-align: center;
+    padding: 30px;
+}
+
+.warning-content h2 {
+    color: #ff0000;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px #ff0000;
+    animation: blink 0.5s infinite;
+}
+
+.warning-content p {
+    color: #ffff00;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.cooldown-bar {
+    width: 250px;
+    height: 25px;
+    background: #001a00;
+    border: 2px solid #00ff00;
+    margin: 0 auto;
+}
+
+.cooldown-fill {
+    height: 100%;
+    width: 0%;
+    background: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    transition: width 0.1s linear;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 360px) {
+    .ascii-art {
+        font-size: 5px;
+    }
+    
+    .cam-number {
+        font-size: 16px;
+    }
+    
+    .cam-name {
+        font-size: 8px;
+    }
+}
+
+@media (min-height: 700px) {
+    .cam-button,
+    .system-button {
+        padding: 15px 10px;
+    }
+}
