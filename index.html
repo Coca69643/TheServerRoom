@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>The Server Room</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Barra de Status Superior -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="label">SYSTEM HEAT:</span>
+                <div class="heat-bar">
+                    <div class="heat-fill" id="heatBar"></div>
+                </div>
+                <span class="heat-value" id="heatValue">0%</span>
+            </div>
+            <div class="status-item time">
+                <span class="label">TIME:</span>
+                <span id="gameTime">00:00</span>
+            </div>
+        </div>
+
+        <!-- Display Principal (Monitor CRT) -->
+        <div class="monitor-display">
+            <div class="scanlines"></div>
+            <div class="crt-glow"></div>
+            
+            <div class="display-content" id="displayContent">
+                <div class="camera-feed">
+                    <div class="camera-header">
+                        <span class="camera-label" id="cameraLabel">SYSTEM OFFLINE</span>
+                        <span class="camera-time" id="cameraTime">--:--</span>
+                    </div>
+                    
+                    <div class="camera-view" id="cameraView">
+                        <div class="boot-screen">
+                            <pre class="ascii-art">
+███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗ 
+██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗
+███████╗█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝
+╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗
+███████║███████╗██║  ██║ ╚████╔╝ ███████╗██║  ██║
+╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝
+                            </pre>
+                            <p class="boot-text">SECURITY MONITORING SYSTEM v1.4</p>
+                            <p class="boot-text blink">PRESS ANY CAMERA TO BEGIN...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="camera-footer">
+                        <span class="footer-text">⚠ WARNING: UNAUTHORIZED ACCESS DETECTED</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles de Câmeras -->
+        <div class="camera-controls">
+            <div class="controls-left">
+                <button class="cam-button" data-cam="1">
+                    <span class="cam-number">01</span>
+                    <span class="cam-name">ENTRADA</span>
+                </button>
+                <button class="cam-button" data-cam="2">
+                    <span class="cam-number">02</span>
+                    <span class="cam-name">CORREDOR A</span>
+                </button>
+                <button class="cam-button" data-cam="3">
+                    <span class="cam-number">03</span>
+                    <span class="cam-name">SALA SERVIDORES</span>
+                </button>
+            </div>
+            
+            <div class="controls-right">
+                <button class="cam-button" data-cam="4">
+                    <span class="cam-number">04</span>
+                    <span class="cam-name">CORREDOR B</span>
+                </button>
+                <button class="cam-button" data-cam="5">
+                    <span class="cam-number">05</span>
+                    <span class="cam-name">DEPÓSITO</span>
+                </button>
+                <button class="system-button" id="closeMonitor">
+                    <span class="cam-number">⨉</span>
+                    <span class="cam-name">FECHAR</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Alerta de Superaquecimento -->
+        <div class="overheat-warning" id="overheatWarning">
+            <div class="warning-content">
+                <h2>⚠ SYSTEM OVERHEAT ⚠</h2>
+                <p>COOLING DOWN...</p>
+                <div class="cooldown-bar">
+                    <div class="cooldown-fill" id="cooldownBar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
