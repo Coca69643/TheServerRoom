@@ -15,10 +15,459 @@ body {
     -webkit-user-select: none;
 }
 
+/* === SISTEMA DE TELAS === */
+.main-menu,
+.settings-panel,
+.intro-screen,
 .game-container {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100vh;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.main-menu.active,
+.settings-panel.active,
+.intro-screen.active,
+.game-container.active {
     display: flex;
+    opacity: 1;
+}
+
+/* ========================================
+   MENU PRINCIPAL
+======================================== */
+.main-menu {
+    background: linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+}
+
+.menu-header {
+    text-align: center;
+    padding: 40px 20px 20px;
+}
+
+.game-title {
+    font-size: 36px;
+    color: #00ff00;
+    text-shadow: 
+        0 0 10px #00ff00,
+        0 0 20px #00ff00,
+        0 0 30px #00ff00;
+    letter-spacing: 4px;
+    margin-bottom: 15px;
+    animation: title-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes title-glow {
+    0% { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; }
+    100% { text-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00, 0 0 45px #00ff00; }
+}
+
+.company-name {
+    font-size: 12px;
+    color: #00aa00;
+    text-shadow: 0 0 5px #00ff00;
+    letter-spacing: 2px;
+    opacity: 0.8;
+}
+
+.menu-buttons {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+}
+
+.menu-btn {
+    background: linear-gradient(180deg, #002200 0%, #001100 100%);
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 18px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
+    transition: all 0.3s;
+    touch-action: manipulation;
+}
+
+.menu-btn:active {
+    background: linear-gradient(180deg, #003300 0%, #002200 100%);
+    box-shadow: 
+        0 0 20px rgba(0, 255, 0, 0.5),
+        inset 0 0 15px rgba(0, 255, 0, 0.2);
+    transform: scale(0.98);
+}
+
+.btn-icon {
+    font-size: 20px;
+    text-shadow: 0 0 8px #00ff00;
+}
+
+.btn-text {
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.menu-footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 10px;
+    color: #00aa00;
+    opacity: 0.6;
+    border-top: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+/* ========================================
+   PAINEL DE CONFIGURAÇÕES
+======================================== */
+.settings-panel {
+    background: rgba(0, 0, 0, 0.95);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.settings-container {
+    width: 100%;
+    max-width: 500px;
+    height: 100vh;
+    background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+    border-left: 2px solid #00ff00;
+    border-right: 2px solid #00ff00;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-header {
+    background: #000;
+    border-bottom: 2px solid #00ff00;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 255, 0, 0.3);
+}
+
+.settings-header h2 {
+    font-size: 18px;
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+    letter-spacing: 2px;
+}
+
+.close-btn {
+    background: transparent;
+    border: 2px solid #ff0000;
+    color: #ff0000;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s;
+}
+
+.close-btn:active {
+    background: rgba(255, 0, 0, 0.2);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+.settings-tabs {
+    display: flex;
+    background: #000;
+    border-bottom: 2px solid #00ff00;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-right: 1px solid #003300;
+    color: #00aa00;
+    padding: 12px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.tab-btn:last-child {
+    border-right: none;
+}
+
+.tab-btn.active {
+    background: #002200;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    border-bottom: 2px solid #00ff00;
+}
+
+.settings-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.setting-item {
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid #003300;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.setting-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #00ff00;
+    margin-bottom: 8px;
+}
+
+.value-display {
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+    min-width: 50px;
+    text-align: right;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 26px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #001a00;
+    border: 2px solid #003300;
+    transition: 0.3s;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background: #003300;
+    transition: 0.3s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: #002200;
+    border-color: #00ff00;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+    background: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+/* Slider */
+.slider {
+    width: 100%;
+    height: 8px;
+    background: #001a00;
+    border: 1px solid #003300;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #00ff00;
+    cursor: pointer;
+    border: 2px solid #003300;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #00ff00;
+    cursor: pointer;
+    border: 2px solid #003300;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+.settings-footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 10px;
+    color: #00aa00;
+    opacity: 0.6;
+    border-top: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+/* ========================================
+   INTRO SCREEN (TERMO DE COMPROMISSO)
+======================================== */
+.intro-screen {
+    background: #000;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+.intro-container {
+    width: 100%;
+    max-width: 600px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.document-header {
+    text-align: center;
+    padding: 20px 15px;
+    border: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.company-logo {
+    font-size: 20px;
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.document-title {
+    font-size: 11px;
+    color: #00aa00;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.document-id {
+    font-size: 9px;
+    color: #006600;
+    letter-spacing: 2px;
+}
+
+.document-content {
+    flex: 1;
+    background: rgba(0, 255, 0, 0.02);
+    border: 1px solid #003300;
+    padding: 20px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.typewriter {
+    font-size: 13px;
+    line-height: 1.8;
+    color: #00ff00;
+    white-space: pre-wrap;
+}
+
+.document-footer {
+    text-align: center;
+    padding: 15px;
+}
+
+.accept-btn {
+    background: linear-gradient(180deg, #002200 0%, #001100 100%);
+    border: 3px solid #00ff00;
+    color: #00ff00;
+    padding: 18px 40px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    transition: all 0.3s;
+    touch-action: manipulation;
+}
+
+.accept-btn:active {
+    background: linear-gradient(180deg, #003300 0%, #002200 100%);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+    transform: scale(0.98);
+}
+
+.btn-glow {
+    text-shadow: 0 0 10px #00ff00;
+    animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 10px #00ff00; }
+    50% { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
+}
+
+.copyright {
+    font-size: 10px;
+    color: #00aa00;
+    opacity: 0.6;
+}
+
+/* ========================================
+   JOGO (Estilos anteriores mantidos)
+======================================== */
+.game-container {
     flex-direction: column;
     background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
 }
@@ -351,6 +800,10 @@ body {
 
 /* === RESPONSIVIDADE === */
 @media (max-width: 360px) {
+    .game-title {
+        font-size: 28px;
+    }
+    
     .ascii-art {
         font-size: 5px;
     }
@@ -368,5 +821,9 @@ body {
     .cam-button,
     .system-button {
         padding: 15px 10px;
+    }
+    
+    .menu-btn {
+        padding: 20px 25px;
     }
 }

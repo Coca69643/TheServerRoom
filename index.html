@@ -7,11 +7,177 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>The Server Room</title>
     <link rel="stylesheet" href="style.css">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-    <div class="game-container">
+    <!-- === MENU PRINCIPAL === -->
+    <div class="main-menu active" id="mainMenu">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h1 class="game-title">THE SERVER ROOM</h1>
+                <p class="company-name">A product of Aether Computing Corp</p>
+            </div>
+            
+            <div class="menu-buttons">
+                <button class="menu-btn" id="newGameBtn">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">NOVO JOGO</span>
+                </button>
+                <button class="menu-btn" id="continueBtn">
+                    <span class="btn-icon">⟳</span>
+                    <span class="btn-text">CONTINUAR</span>
+                </button>
+                <button class="menu-btn" id="settingsBtn">
+                    <span class="btn-icon">⚙</span>
+                    <span class="btn-text">CONFIGURAÇÕES</span>
+                </button>
+            </div>
+            
+            <div class="menu-footer">
+                <p>© 2026 Duck Dream Studios. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- === PAINEL DE CONFIGURAÇÕES === -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>CONFIGURAÇÕES</h2>
+                <button class="close-btn" id="closeSettings">✕</button>
+            </div>
+            
+            <div class="settings-tabs">
+                <button class="tab-btn active" data-tab="graphics">GRÁFICOS</button>
+                <button class="tab-btn" data-tab="audio">ÁUDIO</button>
+                <button class="tab-btn" data-tab="interface">INTERFACE</button>
+                <button class="tab-btn" data-tab="gameplay">JOGABILIDADE</button>
+            </div>
+            
+            <div class="settings-content">
+                <!-- Tab Gráficos -->
+                <div class="tab-content active" id="graphics">
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Efeito CRT</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="crtEffect" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Scanlines</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="scanlinesEffect" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Tab Áudio -->
+                <div class="tab-content" id="audio">
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Volume Geral</span>
+                            <span class="value-display" id="masterVolValue">80%</span>
+                        </label>
+                        <input type="range" class="slider" id="masterVolume" min="0" max="100" value="80">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Efeitos Sonoros</span>
+                            <span class="value-display" id="sfxVolValue">70%</span>
+                        </label>
+                        <input type="range" class="slider" id="sfxVolume" min="0" max="100" value="70">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Música de Fundo</span>
+                            <span class="value-display" id="musicVolValue">50%</span>
+                        </label>
+                        <input type="range" class="slider" id="musicVolume" min="0" max="100" value="50">
+                    </div>
+                </div>
+                
+                <!-- Tab Interface -->
+                <div class="tab-content" id="interface">
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Escala da Interface</span>
+                            <span class="value-display" id="uiScaleValue">100%</span>
+                        </label>
+                        <input type="range" class="slider" id="uiScale" min="80" max="120" value="100">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Mostrar FPS</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="showFps">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Tab Jogabilidade -->
+                <div class="tab-content" id="gameplay">
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Vibração</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="vibration" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Dificuldade</span>
+                            <span class="value-display" id="difficultyValue">Normal</span>
+                        </label>
+                        <input type="range" class="slider" id="difficulty" min="0" max="2" value="1">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-footer">
+                <p>© 2026 Duck Dream Studios. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- === INTRO SCREEN (TERMO DE COMPROMISSO) === -->
+    <div class="intro-screen" id="introScreen">
+        <div class="intro-container">
+            <div class="document-header">
+                <div class="company-logo">AETHER COMPUTING CORP</div>
+                <div class="document-title">TERMO DE COMPROMISSO E ISENÇÃO DE RESPONSABILIDADE</div>
+                <div class="document-id">DOC-AEC-2026-SR-001</div>
+            </div>
+            
+            <div class="document-content" id="documentContent">
+                <p class="typewriter" id="typewriterText"></p>
+            </div>
+            
+            <div class="document-footer">
+                <button class="accept-btn" id="acceptBtn" style="display: none;">
+                    <span class="btn-glow">ACEITAR RISCOS</span>
+                </button>
+                <p class="copyright">© 2026 Duck Dream Studios. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- === JOGO (Código anterior mantido) === -->
+    <div class="game-container" id="gameContainer">
         <!-- Barra de Status Superior -->
         <div class="status-bar">
             <div class="status-item">
