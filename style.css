@@ -45,8 +45,8 @@ html, body {
    PATCH — BLOQUEIO LANDSCAPE
    Exibido apenas em telas pequenas deitadas
 ================================================ */
-@media screen and (orientation: landscape) and (max-height: 450px) {
-    body::before {
+/* Altere 'landscape' para 'portrait': */
+@media screen and (orientation: portrait) {
         content: '';
         position: fixed;
         top: 0;
