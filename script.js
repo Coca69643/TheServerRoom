@@ -677,3 +677,419 @@ document.head.appendChild(style);
 // O motor Byte (código anterior) deve ser incluído aqui ou em arquivo separado
 // Inicializamos quando o jogo começa
 ```
+// ============================================================
+//  MÓDULO — FLUXO DE INTRODUÇÃO + CENA 3D
+//  Duck Dream Studios — The Server Room
+//  Desenvolvedor Sênior
+//  REGRA: Não interfere no código do Deep Seek acima
+// ============================================================
+
+// === UTILITÁRIO DE TELAS ===
+function showScreen(id) {
+    const screens = [
+        'mainMenu',
+        'settingsPanel',
+        'introScreen',
+        'sceneContainer',
+        'gameContainer'
+    ];
+
+    screens.forEach(screenId => {
+        const el = document.getElementById(screenId);
+        if (!el) return;
+
+        if (screenId === id) {
+            el.classList.add('active');
+        } else {
+            // Protege o gameContainer do Deep Seek
+            if (screenId === 'gameContainer' && id !== 'gameContainer') return;
+            el.classList.remove('active');
+        }
+    });
+}
+
+// === DATA/HORA NO CABEÇALHO DO E-MAIL ===
+function setEmailDate() {
+    const el = document.getElementById('emailDate');
+    if (!el) return;
+
+    const now = new Date();
+    const dd   = String(now.getDate()).padStart(2, '0');
+    const mm   = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const hh   = String(now.getHours()).padStart(2, '0');
+    const min  = String(now.getMinutes()).padStart(2, '0');
+
+    el.textContent = `${dd}/${mm}/${yyyy}  ${hh}:${min}`;
+}
+
+// === TEXTO DO E-MAIL ===
+const EMAIL_TEXT =
+`Prezado(a) Técnico(a) de Plantão,
+
+Você foi designado(a) para o turno noturno no Data Center
+Setor 7 — Instalação AEC-BR-09.
+
+Suas responsabilidades incluem:
+
+  [1] Monitoramento contínuo dos servidores ativos.
+  [2] Verificação dos sistemas de refrigeração.
+  [3] Registro de qualquer anomalia no terminal local.
+
+AVISO IMPORTANTE:
+
+A Aether Computing Corp isenta-se de qualquer
+responsabilidade por danos físicos, psicológicos
+ou existenciais decorrentes de contato direto ou
+indireto com a entidade catalogada sob o código:
+
+            B . Y . T . E
+
+Este protocolo foi homologado pelo Departamento
+Jurídico em 14/03/2019 e está em conformidade
+com a Cláusula 7-Ω do seu contrato de trabalho.
+
+Não tente desligar o sistema.
+Não tente sair pelo acesso principal.
+Siga as câmeras.
+
+Atenciosamente,
+Departamento de Recursos Humanos
+Aether Computing Corp`;
+
+// === EFEITO TYPEWRITER ===
+function startTypewriter(text, targetId, cursorId, onComplete) {
+    const target = document.getElementById(targetId);
+    const cursor = document.getElementById(cursorId);
+    if (!target) return;
+
+    let index = 0;
+    target.textContent = '';
+
+    // Velocidade variável: pausa em pontuação
+    function getDelay(char) {
+        if (['.', '!', '?'].includes(char)) return 120;
+        if ([',', ';', ':'].includes(char)) return 60;
+        if (char === '\n') return 40;
+        return 22;
+    }
+
+    function type() {
+        if (index < text.length) {
+            target.textContent += text[index];
+            index++;
+
+            // Auto-scroll suave
+            const body = document.getElementById('emailBody');
+            if (body) body.scrollTop = body.scrollHeight;
+
+            setTimeout(type, getDelay(text[index - 1]));
+        } else {
+            // Typewriter concluído
+            if (cursor) cursor.style.display = 'none';
+            if (onComplete) onComplete();
+        }
+    }
+
+    type();
+}
+
+// === BOTÃO CONFIRMAR RECEBIMENTO ===
+function showConfirmButton() {
+    const btn = document.getElementById('confirmBtn');
+    if (!btn) return;
+
+    btn.style.display = 'block';
+    btn.style.opacity = '0';
+    btn.style.transition = 'opacity 0.8s ease';
+
+    // Pequeno delay para o fade-in ser perceptível
+    setTimeout(() => {
+        btn.style.opacity = '1';
+    }, 100);
+
+    btn.addEventListener('click', () => {
+        if (navigator.vibrate) navigator.vibrate(60);
+        initThreeScene();
+    }, { once: true });
+}
+
+// === INICIAR INTRO SCREEN ===
+function startIntroScreen() {
+    showScreen('introScreen');
+    setEmailDate();
+
+    // Pequeno delay antes de começar a digitar
+    setTimeout(() => {
+        startTypewriter(
+            EMAIL_TEXT,
+            'typewriterText',
+            'typewriterCursor',
+            showConfirmButton
+        );
+    }, 600);
+}
+
+// === BOTÃO NOVO JOGO (MENU PRINCIPAL) ===
+const newGameBtn = document.getElementById('newGameBtn');
+if (newGameBtn) {
+    newGameBtn.addEventListener('click', () => {
+        if (navigator.vibrate) navigator.vibrate(40);
+        startIntroScreen();
+    });
+}
+
+// ============================================================
+//  CENA THREE.JS — ESTACIONAMENTO DA AETHER CORP
+// ============================================================
+
+function initThreeScene() {
+    showScreen('sceneContainer');
+
+    // Carrega Three.js dinamicamente (sem biblioteca local)
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    script.onload = buildScene;
+    script.onerror = () => {
+        console.warn('Three.js não carregou. Verifique conexão.');
+    };
+    document.head.appendChild(script);
+}
+
+function buildScene() {
+    const canvas  = document.getElementById('threeCanvas');
+    const W       = window.innerWidth;
+    const H       = window.innerHeight;
+
+    // --- RENDERER ---
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.shadowMap.enabled = true;
+    renderer.setClearColor(0x050a05);
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // --- CENA ---
+    const scene = new THREE.Scene();
+    scene.fog   = new THREE.FogExp2(0x050a05, 0.07);
+
+    // --- CÂMERA ---
+    const camera = new THREE.PerspectiveCamera(70, W / H, 0.1, 80);
+    camera.position.set(0, 1.7, 0);
+
+    // -------------------------------------------------------
+    //  GEOMETRIAS
+    // -------------------------------------------------------
+
+    // Asfalto molhado
+    const floorGeo = new THREE.PlaneGeometry(80, 80, 30, 30);
+    const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x080808,
+        roughness: 0.1,
+        metalness: 0.8
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // Reflexo verde no asfalto (overlay plano)
+    const reflectGeo = new THREE.PlaneGeometry(80, 80);
+    const reflectMat = new THREE.MeshBasicMaterial({
+        color: 0x001a00,
+        transparent: true,
+        opacity: 0.35
+    });
+    const reflect = new THREE.Mesh(reflectGeo, reflectMat);
+    reflect.rotation.x = -Math.PI / 2;
+    reflect.position.y = 0.01;
+    scene.add(reflect);
+
+    // Função para criar postes de luz verde ao longe
+    function createLampPost(x, z) {
+        const group = new THREE.Group();
+
+        // Poste
+        const postGeo = new THREE.CylinderGeometry(0.05, 0.05, 4, 6);
+        const postMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+        const post    = new THREE.Mesh(postGeo, postMat);
+        post.position.y = 2;
+        group.add(post);
+
+        // Cúpula da lâmpada
+        const domeGeo = new THREE.SphereGeometry(0.18, 8, 8);
+        const domeMat = new THREE.MeshStandardMaterial({
+            color: 0x00ff88,
+            emissive: 0x00ff44,
+            emissiveIntensity: 2
+        });
+        const dome = new THREE.Mesh(domeGeo, domeMat);
+        dome.position.y = 4.2;
+        group.add(dome);
+
+        // Luz pontual
+        const light = new THREE.PointLight(0x00ff44, 1.2, 12);
+        light.position.y = 4.1;
+        light.castShadow = true;
+        group.add(light);
+
+        group.position.set(x, 0, z);
+        scene.add(group);
+    }
+
+    // Postes ao longo do estacionamento
+    createLampPost(-6,  -8);
+    createLampPost( 6,  -8);
+    createLampPost(-6, -18);
+    createLampPost( 6, -18);
+    createLampPost(-6, -28);
+    createLampPost( 6, -28);
+
+    // Luz ambiente fraquíssima
+    const ambientLight = new THREE.AmbientLight(0x001a00, 0.4);
+    scene.add(ambientLight);
+
+    // Luz direcional suave (simula luar neblina)
+    const dirLight = new THREE.DirectionalLight(0x003311, 0.3);
+    dirLight.position.set(0, 10, -5);
+    scene.add(dirLight);
+
+    // Cercas / muros ao fundo
+    function createWall(x, z, w, h, d) {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        const mat = new THREE.MeshStandardMaterial({
+            color: 0x0a0a0a,
+            roughness: 0.9
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(x, h / 2, z);
+        mesh.receiveShadow = true;
+        mesh.castShadow    = true;
+        scene.add(mesh);
+    }
+
+    createWall(0,   -38, 40, 3, 0.5);  // Muro fundo
+    createWall(-20, -20,  0.5, 3, 20); // Muro esquerdo
+    createWall( 20, -20,  0.5, 3, 20); // Muro direito
+
+    // Partículas de neblina / chuva fina
+    const particleCount = 300;
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+        positions[i * 3]     = (Math.random() - 0.5) * 30;
+        positions[i * 3 + 1] = Math.random() * 6;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 30 - 5;
+    }
+
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+        color: 0x00ff44,
+        size: 0.04,
+        transparent: true,
+        opacity: 0.25
+    });
+
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // -------------------------------------------------------
+    //  CONTROLES TOUCH MOBILE
+    // -------------------------------------------------------
+    const input = {
+        moving:      false,
+        looking:     false,
+        lookDeltaX:  0,
+        lastTouchX:  0
+    };
+
+    const touchLeft  = document.getElementById('touchLeft');
+    const touchRight = document.getElementById('touchRight');
+
+    // Zona esquerda — andar
+    touchLeft.addEventListener('touchstart', e => {
+        e.preventDefault();
+        input.moving = true;
+    }, { passive: false });
+
+    touchLeft.addEventListener('touchend', () => {
+        input.moving = false;
+    });
+
+    // Zona direita — olhar
+    touchRight.addEventListener('touchstart', e => {
+        e.preventDefault();
+        input.looking    = true;
+        input.lastTouchX = e.touches[0].clientX;
+    }, { passive: false });
+
+    touchRight.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (!input.looking) return;
+        const deltaX     = e.touches[0].clientX - input.lastTouchX;
+        input.lookDeltaX = deltaX;
+        input.lastTouchX = e.touches[0].clientX;
+    }, { passive: false });
+
+    touchRight.addEventListener('touchend', () => {
+        input.looking    = false;
+        input.lookDeltaX = 0;
+    });
+
+    // -------------------------------------------------------
+    //  ESTADO DA CÂMERA
+    // -------------------------------------------------------
+    let yaw = 0; // Rotação horizontal acumulada
+
+    // -------------------------------------------------------
+    //  LOOP DE ANIMAÇÃO
+    // -------------------------------------------------------
+    const clock = new THREE.Clock();
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        const delta = clock.getDelta();
+
+        // Andar para frente
+        if (input.moving) {
+            const speed    = 3.5 * delta;
+            camera.position.x -= Math.sin(yaw) * speed;
+            camera.position.z -= Math.cos(yaw) * speed;
+
+            // Limite da cena
+            camera.position.z = Math.max(camera.position.z, -34);
+        }
+
+        // Girar câmera (olhar)
+        if (input.looking && Math.abs(input.lookDeltaX) > 0.5) {
+            yaw -= input.lookDeltaX * 0.003;
+            camera.rotation.y = yaw;
+            input.lookDeltaX  = 0;
+        }
+
+        // Animar partículas (chuva leve caindo)
+        const pos = particleGeo.attributes.position.array;
+        for (let i = 0; i < particleCount; i++) {
+            pos[i * 3 + 1] -= 0.03;
+            if (pos[i * 3 + 1] < 0) {
+                pos[i * 3 + 1] = 6;
+            }
+        }
+        particleGeo.attributes.position.needsUpdate = true;
+
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Resize responsivo
+    window.addEventListener('resize', () => {
+        const nW = window.innerWidth;
+        const nH = window.innerHeight;
+        camera.aspect = nW / nH;
+        camera.updateProjectionMatrix();
+        renderer.setSize(nW, nH);
+    });
+}

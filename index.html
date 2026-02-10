@@ -154,27 +154,89 @@
         </div>
     </div>
 
-    <!-- === INTRO SCREEN (TERMO DE COMPROMISSO) === -->
-    <div class="intro-screen" id="introScreen">
-        <div class="intro-container">
-            <div class="document-header">
-                <div class="company-logo">AETHER COMPUTING CORP</div>
-                <div class="document-title">TERMO DE COMPROMISSO E ISENÇÃO DE RESPONSABILIDADE</div>
-                <div class="document-id">DOC-AEC-2026-SR-001</div>
+    <!-- === INTRO SCREEN (E-MAIL DA AETHER CORP) === -->
+<div class="intro-screen" id="introScreen">
+    <div class="intro-container">
+
+        <!-- Cabeçalho do Cliente de E-mail -->
+        <div class="email-client-header">
+            <div class="email-client-title">
+                <span class="email-client-icon">✉</span>
+                AETHER MAIL v2.1
             </div>
-            
-            <div class="document-content" id="documentContent">
-                <p class="typewriter" id="typewriterText"></p>
-            </div>
-            
-            <div class="document-footer">
-                <button class="accept-btn" id="acceptBtn" style="display: none;">
-                    <span class="btn-glow">ACEITAR RISCOS</span>
-                </button>
-                <p class="copyright">© 2026 Duck Dream Studios. All rights reserved.</p>
+            <div class="email-status">
+                <span class="blink">● CONECTADO</span>
             </div>
         </div>
+
+        <!-- Metadados do E-mail -->
+        <div class="email-meta">
+            <div class="email-meta-row">
+                <span class="meta-label">DE:</span>
+                <span class="meta-value">rh@aethercomputing.corp</span>
+            </div>
+            <div class="email-meta-row">
+                <span class="meta-label">PARA:</span>
+                <span class="meta-value">tecnico.turno@aethercomputing.corp</span>
+            </div>
+            <div class="email-meta-row">
+                <span class="meta-label">ASSUNTO:</span>
+                <span class="meta-value">Instruções de Turno — Acesso Noturno [CONFIDENCIAL]</span>
+            </div>
+            <div class="email-meta-row">
+                <span class="meta-label">DATA:</span>
+                <span class="meta-value" id="emailDate">--/--/---- --:--</span>
+            </div>
+        </div>
+
+        <!-- Corpo do E-mail (Typewriter) -->
+        <div class="email-body" id="emailBody">
+            <p class="typewriter-text" id="typewriterText"></p>
+            <span class="cursor-blink" id="typewriterCursor">█</span>
+        </div>
+
+        <!-- Rodapé do E-mail -->
+        <div class="email-footer">
+            <div class="email-signature">
+                <span>Aether Computing Corp — Departamento de Recursos Humanos</span><br>
+                <span class="email-encrypt">🔒 Criptografia de 256 bits ativa. Monitoramento B.Y.T.E em espera...</span>
+            </div>
+            <button class="confirm-btn" id="confirmBtn" style="display: none;">
+                <span>✔ CONFIRMAR RECEBIMENTO</span>
+            </button>
+        </div>
+
     </div>
+</div>
+
+<!-- === CENA 3D (ESTACIONAMENTO) === -->
+<div class="scene-container" id="sceneContainer">
+    <canvas id="threeCanvas"></canvas>
+
+    <!-- HUD da Cena 3D -->
+    <div class="scene-hud">
+        <div class="scene-hud-top">
+            <span class="scene-label blink">▶ AETHER CORP — SETOR EXTERNO B</span>
+        </div>
+        <div class="scene-hud-bottom">
+            <span class="scene-hint">↔ Olhar direita/esquerda para mover câmera</span>
+        </div>
+    </div>
+
+    <!-- Controles Touch -->
+    <div class="touch-zone left" id="touchLeft">
+        <div class="touch-label">
+            <span class="touch-icon">▲</span>
+            <span>ANDAR</span>
+        </div>
+    </div>
+    <div class="touch-zone right" id="touchRight">
+        <div class="touch-label">
+            <span class="touch-icon">◈</span>
+            <span>OLHAR</span>
+        </div>
+    </div>
+</div>
 
     <!-- === JOGO (Código anterior mantido) === -->
     <div class="game-container" id="gameContainer">
