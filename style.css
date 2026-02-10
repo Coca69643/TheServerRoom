@@ -45,8 +45,9 @@ html, body {
    PATCH — BLOQUEIO LANDSCAPE
    Exibido apenas em telas pequenas deitadas
 ================================================ */
-/* Altere 'landscape' para 'portrait': */
 @media screen and (orientation: portrait) {
+    /* Isso vai bloquear apenas se o celular estiver em PÉ */
+    body::before {
         content: '';
         position: fixed;
         top: 0;
@@ -57,6 +58,20 @@ html, body {
         z-index: 99998;
     }
 
+    body::after {
+        content: '⟳  GIRE PARA O MODO PAISAGEM';
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        text-align: center;
+        text-shadow: 0 0 10px #00ff00;
+        z-index: 99999;
+    }
+}
     body::after {
         content: '⟳  GIRE O DISPOSITIVO PARA CONTINUAR';
         position: fixed;
