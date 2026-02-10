@@ -41,12 +41,8 @@ html, body {
     opacity: 1;
 }
 
-/* ================================================
-   PATCH — BLOQUEIO LANDSCAPE
-   Exibido apenas em telas pequenas deitadas
-================================================ */
+/* Limpa qualquer bloqueio anterior e define apenas para modo EM PÉ */
 @media screen and (orientation: portrait) {
-    /* Isso vai bloquear apenas se o celular estiver em PÉ */
     body::before {
         content: '';
         position: fixed;
@@ -57,6 +53,29 @@ html, body {
         background: #000;
         z-index: 99998;
     }
+
+    body::after {
+        content: '⟳ GIRE PARA O MODO PAISAGEM';
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        font-size: 16px;
+        text-align: center;
+        text-shadow: 0 0 10px #00ff00;
+        z-index: 99999;
+        white-space: nowrap;
+    }
+}
+
+/* Garante que em modo DEITADO nada bloqueie a tela */
+@media screen and (orientation: landscape) {
+    body::before, body::after {
+        display: none !important;
+    }
+}
 
     body::after {
         content: '⟳  GIRE PARA O MODO PAISAGEM';
