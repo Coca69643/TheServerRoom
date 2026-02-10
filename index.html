@@ -7,56 +7,73 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>The Server Room</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-    <!-- === MENU PRINCIPAL === -->
-    <div class="main-menu active" id="mainMenu">
-        <div class="menu-container">
+
+    <!-- ================================================
+         MENU PRINCIPAL
+    ================================================ -->
+    <div class="screen" id="mainMenu">
+        <div class="menu-wrapper">
+
+            <!-- Botão de Configurações fixo no topo direito -->
+            <button class="settings-fab" id="settingsBtn">
+                <span class="fab-icon">⚙</span>
+            </button>
+
+            <!-- Cabeçalho -->
             <div class="menu-header">
-                <h1 class="game-title">THE SERVER ROOM</h1>
+                <div class="menu-glitch-bar"></div>
+                <h1 class="game-title">THE SERVER<br>ROOM</h1>
                 <p class="company-name">A product of Aether Computing Corp</p>
+                <div class="menu-glitch-bar"></div>
             </div>
-            
+
+            <!-- Botões principais -->
             <div class="menu-buttons">
-                <button class="menu-btn" id="newGameBtn">
+                <button class="menu-btn primary" id="newGameBtn">
                     <span class="btn-icon">▶</span>
                     <span class="btn-text">NOVO JOGO</span>
                 </button>
-                <button class="menu-btn" id="continueBtn">
+
+                <button class="menu-btn" id="continueBtn" disabled>
                     <span class="btn-icon">⟳</span>
                     <span class="btn-text">CONTINUAR</span>
-                </button>
-                <button class="menu-btn" id="settingsBtn">
-                    <span class="btn-icon">⚙</span>
-                    <span class="btn-text">CONFIGURAÇÕES</span>
+                    <span class="btn-tag">SEM SAVE</span>
                 </button>
             </div>
-            
+
+            <!-- Rodapé -->
             <div class="menu-footer">
                 <p>© 2026 Duck Dream Studios. All rights reserved.</p>
+                <p class="version-tag">v1.1.0</p>
             </div>
+
         </div>
     </div>
 
-    <!-- === PAINEL DE CONFIGURAÇÕES === -->
-    <div class="settings-panel" id="settingsPanel">
+    <!-- ================================================
+         PAINEL DE CONFIGURAÇÕES
+    ================================================ -->
+    <div class="screen" id="settingsPanel">
         <div class="settings-container">
+
             <div class="settings-header">
                 <h2>CONFIGURAÇÕES</h2>
                 <button class="close-btn" id="closeSettings">✕</button>
             </div>
-            
+
             <div class="settings-tabs">
                 <button class="tab-btn active" data-tab="graphics">GRÁFICOS</button>
                 <button class="tab-btn" data-tab="audio">ÁUDIO</button>
                 <button class="tab-btn" data-tab="interface">INTERFACE</button>
                 <button class="tab-btn" data-tab="gameplay">JOGABILIDADE</button>
             </div>
-            
+
             <div class="settings-content">
+
                 <!-- Tab Gráficos -->
-                <div class="tab-content active" id="graphics">
+                <div class="tab-content active" id="tab-graphics">
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Efeito CRT</span>
@@ -66,7 +83,6 @@
                             </div>
                         </label>
                     </div>
-                    
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Scanlines</span>
@@ -77,9 +93,9 @@
                         </label>
                     </div>
                 </div>
-                
+
                 <!-- Tab Áudio -->
-                <div class="tab-content" id="audio">
+                <div class="tab-content" id="tab-audio">
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Volume Geral</span>
@@ -87,7 +103,6 @@
                         </label>
                         <input type="range" class="slider" id="masterVolume" min="0" max="100" value="80">
                     </div>
-                    
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Efeitos Sonoros</span>
@@ -95,7 +110,6 @@
                         </label>
                         <input type="range" class="slider" id="sfxVolume" min="0" max="100" value="70">
                     </div>
-                    
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Música de Fundo</span>
@@ -104,9 +118,9 @@
                         <input type="range" class="slider" id="musicVolume" min="0" max="100" value="50">
                     </div>
                 </div>
-                
+
                 <!-- Tab Interface -->
-                <div class="tab-content" id="interface">
+                <div class="tab-content" id="tab-interface">
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Escala da Interface</span>
@@ -114,7 +128,6 @@
                         </label>
                         <input type="range" class="slider" id="uiScale" min="80" max="120" value="100">
                     </div>
-                    
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Mostrar FPS</span>
@@ -125,9 +138,9 @@
                         </label>
                     </div>
                 </div>
-                
+
                 <!-- Tab Jogabilidade -->
-                <div class="tab-content" id="gameplay">
+                <div class="tab-content" id="tab-gameplay">
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Vibração</span>
@@ -137,7 +150,6 @@
                             </div>
                         </label>
                     </div>
-                    
                     <div class="setting-item">
                         <label class="setting-label">
                             <span>Dificuldade</span>
@@ -146,101 +158,106 @@
                         <input type="range" class="slider" id="difficulty" min="0" max="2" value="1">
                     </div>
                 </div>
+
             </div>
-            
+
             <div class="settings-footer">
                 <p>© 2026 Duck Dream Studios. All rights reserved.</p>
             </div>
+
         </div>
     </div>
 
-    <!-- === INTRO SCREEN (E-MAIL DA AETHER CORP) === -->
-<div class="intro-screen" id="introScreen">
-    <div class="intro-container">
+    <!-- ================================================
+         INTRO SCREEN — E-MAIL DA AETHER CORP
+    ================================================ -->
+    <div class="screen" id="introScreen">
+        <div class="intro-container">
 
-        <!-- Cabeçalho do Cliente de E-mail -->
-        <div class="email-client-header">
-            <div class="email-client-title">
-                <span class="email-client-icon">✉</span>
-                AETHER MAIL v2.1
+            <div class="email-client-header">
+                <div class="email-client-title">
+                    <span class="email-client-icon">✉</span>
+                    AETHER MAIL v2.1
+                </div>
+                <div class="email-status">
+                    <span class="blink">● CONECTADO</span>
+                </div>
             </div>
-            <div class="email-status">
-                <span class="blink">● CONECTADO</span>
-            </div>
-        </div>
 
-        <!-- Metadados do E-mail -->
-        <div class="email-meta">
-            <div class="email-meta-row">
-                <span class="meta-label">DE:</span>
-                <span class="meta-value">rh@aethercomputing.corp</span>
+            <div class="email-meta">
+                <div class="email-meta-row">
+                    <span class="meta-label">DE:</span>
+                    <span class="meta-value">rh@aethercomputing.corp</span>
+                </div>
+                <div class="email-meta-row">
+                    <span class="meta-label">PARA:</span>
+                    <span class="meta-value">tecnico.turno@aethercomputing.corp</span>
+                </div>
+                <div class="email-meta-row">
+                    <span class="meta-label">ASSUNTO:</span>
+                    <span class="meta-value">Instruções de Turno — Acesso Noturno [CONFIDENCIAL]</span>
+                </div>
+                <div class="email-meta-row">
+                    <span class="meta-label">DATA:</span>
+                    <span class="meta-value" id="emailDate">--/--/---- --:--</span>
+                </div>
             </div>
-            <div class="email-meta-row">
-                <span class="meta-label">PARA:</span>
-                <span class="meta-value">tecnico.turno@aethercomputing.corp</span>
+
+            <div class="email-body" id="emailBody">
+                <p class="typewriter-text" id="typewriterText"></p>
+                <span class="cursor-blink" id="typewriterCursor">█</span>
             </div>
-            <div class="email-meta-row">
-                <span class="meta-label">ASSUNTO:</span>
-                <span class="meta-value">Instruções de Turno — Acesso Noturno [CONFIDENCIAL]</span>
+
+            <div class="email-footer">
+                <div class="email-signature">
+                    <span>Aether Computing Corp — Departamento de Recursos Humanos</span><br>
+                    <span class="email-encrypt">
+                        🔒 Criptografia de 256 bits ativa. Monitoramento B.Y.T.E em espera...
+                    </span>
+                </div>
+                <button class="confirm-btn" id="confirmBtn" style="display:none;">
+                    <span>✔ CONFIRMAR RECEBIMENTO</span>
+                </button>
+                <p class="copyright-small">© 2026 Duck Dream Studios. All rights reserved.</p>
             </div>
-            <div class="email-meta-row">
-                <span class="meta-label">DATA:</span>
-                <span class="meta-value" id="emailDate">--/--/---- --:--</span>
-            </div>
-        </div>
 
-        <!-- Corpo do E-mail (Typewriter) -->
-        <div class="email-body" id="emailBody">
-            <p class="typewriter-text" id="typewriterText"></p>
-            <span class="cursor-blink" id="typewriterCursor">█</span>
-        </div>
-
-        <!-- Rodapé do E-mail -->
-        <div class="email-footer">
-            <div class="email-signature">
-                <span>Aether Computing Corp — Departamento de Recursos Humanos</span><br>
-                <span class="email-encrypt">🔒 Criptografia de 256 bits ativa. Monitoramento B.Y.T.E em espera...</span>
-            </div>
-            <button class="confirm-btn" id="confirmBtn" style="display: none;">
-                <span>✔ CONFIRMAR RECEBIMENTO</span>
-            </button>
-        </div>
-
-    </div>
-</div>
-
-<!-- === CENA 3D (ESTACIONAMENTO) === -->
-<div class="scene-container" id="sceneContainer">
-    <canvas id="threeCanvas"></canvas>
-
-    <!-- HUD da Cena 3D -->
-    <div class="scene-hud">
-        <div class="scene-hud-top">
-            <span class="scene-label blink">▶ AETHER CORP — SETOR EXTERNO B</span>
-        </div>
-        <div class="scene-hud-bottom">
-            <span class="scene-hint">↔ Olhar direita/esquerda para mover câmera</span>
         </div>
     </div>
 
-    <!-- Controles Touch -->
-    <div class="touch-zone left" id="touchLeft">
-        <div class="touch-label">
-            <span class="touch-icon">▲</span>
-            <span>ANDAR</span>
-        </div>
-    </div>
-    <div class="touch-zone right" id="touchRight">
-        <div class="touch-label">
-            <span class="touch-icon">◈</span>
-            <span>OLHAR</span>
-        </div>
-    </div>
-</div>
+    <!-- ================================================
+         CENA 3D — ESTACIONAMENTO
+    ================================================ -->
+    <div class="screen" id="sceneContainer">
+        <canvas id="threeCanvas"></canvas>
 
-    <!-- === JOGO (Código anterior mantido) === -->
-    <div class="game-container" id="gameContainer">
-        <!-- Barra de Status Superior -->
+        <div class="scene-hud">
+            <div class="scene-hud-top">
+                <span class="scene-label blink">▶ AETHER CORP — SETOR EXTERNO B</span>
+            </div>
+            <div class="scene-hud-bottom">
+                <span class="scene-hint">Segure os lados para mover</span>
+            </div>
+        </div>
+
+        <div class="touch-zone left" id="touchLeft">
+            <div class="touch-label">
+                <span class="touch-icon">▲</span>
+                <span>ANDAR</span>
+            </div>
+        </div>
+        <div class="touch-zone right" id="touchRight">
+            <div class="touch-label">
+                <span class="touch-icon">◈</span>
+                <span>OLHAR</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         JOGO — HUD PRINCIPAL
+    ================================================ -->
+    <div class="screen" id="gameContainer">
+
         <div class="status-bar">
             <div class="status-item">
                 <span class="label">SYSTEM HEAT:</span>
@@ -255,22 +272,21 @@
             </div>
         </div>
 
-        <!-- Display Principal (Monitor CRT) -->
         <div class="monitor-display">
-            <div class="scanlines"></div>
-            <div class="crt-glow"></div>
-            
+            <div class="scanlines" id="scanlinesLayer"></div>
+            <div class="crt-glow" id="crtLayer"></div>
+
             <div class="display-content" id="displayContent">
                 <div class="camera-feed">
                     <div class="camera-header">
                         <span class="camera-label" id="cameraLabel">SYSTEM OFFLINE</span>
                         <span class="camera-time" id="cameraTime">--:--</span>
                     </div>
-                    
+
                     <div class="camera-view" id="cameraView">
                         <div class="boot-screen">
                             <pre class="ascii-art">
-███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗ 
+███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗
 ██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗
 ███████╗█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝
 ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗
@@ -281,7 +297,7 @@
                             <p class="boot-text blink">PRESS ANY CAMERA TO BEGIN...</p>
                         </div>
                     </div>
-                    
+
                     <div class="camera-footer">
                         <span class="footer-text">⚠ WARNING: UNAUTHORIZED ACCESS DETECTED</span>
                     </div>
@@ -289,7 +305,6 @@
             </div>
         </div>
 
-        <!-- Controles de Câmeras -->
         <div class="camera-controls">
             <div class="controls-left">
                 <button class="cam-button" data-cam="1">
@@ -305,7 +320,6 @@
                     <span class="cam-name">SALA SERVIDORES</span>
                 </button>
             </div>
-            
             <div class="controls-right">
                 <button class="cam-button" data-cam="4">
                     <span class="cam-number">04</span>
@@ -322,7 +336,6 @@
             </div>
         </div>
 
-        <!-- Alerta de Superaquecimento -->
         <div class="overheat-warning" id="overheatWarning">
             <div class="warning-content">
                 <h2>⚠ SYSTEM OVERHEAT ⚠</h2>
@@ -332,6 +345,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
     <script src="script.js"></script>

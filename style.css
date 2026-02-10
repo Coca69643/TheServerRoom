@@ -1,3 +1,6 @@
+/* ================================================
+   RESET E BASE
+================================================ */
 * {
     margin: 0;
     padding: 0;
@@ -5,184 +8,326 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-body {
-    font-family: 'Courier New', monospace;
-    background: #0a0a0a;
-    color: #00ff00;
+html, body {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    height: 100vh;
+    background: #0a0a0a;
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
     user-select: none;
     -webkit-user-select: none;
 }
 
-/* === SISTEMA DE TELAS === */
-.main-menu,
-.settings-panel,
-.intro-screen,
-.game-container {
+/* ================================================
+   SISTEMA DE TELAS
+   Todas as telas partem de display:none
+   Apenas a que tiver .active aparece
+================================================ */
+.screen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     display: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.35s ease;
+    overflow: hidden;
 }
 
-.main-menu.active,
-.settings-panel.active,
-.intro-screen.active,
-.game-container.active {
+.screen.active {
     display: flex;
     opacity: 1;
 }
 
-/* ========================================
+/* ================================================
+   PATCH — BLOQUEIO LANDSCAPE
+   Exibido apenas em telas pequenas deitadas
+================================================ */
+@media screen and (orientation: landscape) and (max-height: 450px) {
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 99998;
+    }
+
+    body::after {
+        content: '⟳  GIRE O DISPOSITIVO PARA CONTINUAR';
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        text-align: center;
+        text-shadow: 0 0 10px #00ff00;
+        letter-spacing: 2px;
+        z-index: 99999;
+        pointer-events: none;
+    }
+}
+
+/* ================================================
    MENU PRINCIPAL
-======================================== */
-.main-menu {
-    background: linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+================================================ */
+#mainMenu {
+    background: #0a0a0a;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
-.menu-container {
+.menu-wrapper {
+    position: relative;
     width: 100%;
-    max-width: 500px;
-    padding: 20px;
+    max-width: 480px;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: space-between;
-    height: 100vh;
+    padding: 60px 24px 24px;
 }
 
+/* Botão de Configurações — FAB fixo no topo direito */
+.settings-fab {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(180deg, #002200 0%, #001100 100%);
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    touch-action: manipulation;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.settings-fab:active {
+    background: #003300;
+    box-shadow: 0 0 16px rgba(0, 255, 0, 0.6);
+    transform: scale(0.93);
+}
+
+.fab-icon {
+    text-shadow: 0 0 8px #00ff00;
+    pointer-events: none;
+}
+
+/* Cabeçalho do Menu */
 .menu-header {
+    width: 100%;
     text-align: center;
-    padding: 40px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.menu-glitch-bar {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        #00ff00 30%,
+        #00ff00 70%,
+        transparent 100%
+    );
+    box-shadow: 0 0 8px #00ff00;
 }
 
 .game-title {
-    font-size: 36px;
+    font-size: 38px;
+    line-height: 1.1;
     color: #00ff00;
-    text-shadow: 
+    text-shadow:
         0 0 10px #00ff00,
-        0 0 20px #00ff00,
-        0 0 30px #00ff00;
-    letter-spacing: 4px;
-    margin-bottom: 15px;
-    animation: title-glow 2s ease-in-out infinite alternate;
+        0 0 22px #00ff00,
+        0 0 40px #00ff00;
+    letter-spacing: 5px;
+    animation: title-glow 2.5s ease-in-out infinite alternate;
 }
 
 @keyframes title-glow {
-    0% { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; }
-    100% { text-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00, 0 0 45px #00ff00; }
+    0%   { text-shadow: 0 0 10px #00ff00, 0 0 22px #00ff00, 0 0 40px #00ff00; }
+    100% { text-shadow: 0 0 16px #00ff00, 0 0 34px #00ff00, 0 0 60px #00ff00; }
 }
 
 .company-name {
-    font-size: 12px;
+    font-size: 11px;
     color: #00aa00;
-    text-shadow: 0 0 5px #00ff00;
     letter-spacing: 2px;
-    opacity: 0.8;
+    opacity: 0.75;
+    text-shadow: 0 0 5px #00ff00;
 }
 
+/* Botões do Menu */
 .menu-buttons {
-    flex: 1;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 15px;
-    padding: 20px;
+    gap: 14px;
+    flex-shrink: 0;
 }
 
 .menu-btn {
+    position: relative;
+    width: 100%;
     background: linear-gradient(180deg, #002200 0%, #001100 100%);
     border: 2px solid #00ff00;
     color: #00ff00;
     padding: 18px 20px;
     font-family: 'Courier New', monospace;
     font-size: 16px;
+    letter-spacing: 2px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
-    transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.15);
+    transition: all 0.25s;
     touch-action: manipulation;
+    flex-shrink: 0;
 }
 
-.menu-btn:active {
-    background: linear-gradient(180deg, #003300 0%, #002200 100%);
-    box-shadow: 
+.menu-btn:active:not(:disabled) {
+    background: #003300;
+    box-shadow:
         0 0 20px rgba(0, 255, 0, 0.5),
-        inset 0 0 15px rgba(0, 255, 0, 0.2);
-    transform: scale(0.98);
+        inset 0 0 12px rgba(0, 255, 0, 0.2);
+    transform: scale(0.97);
+}
+
+/* Estado desabilitado — sem brilho neon */
+.menu-btn:disabled {
+    background: #0a0a0a;
+    border-color: #1a1a1a;
+    color: #2a2a2a;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.menu-btn:disabled .btn-icon,
+.menu-btn:disabled .btn-text {
+    text-shadow: none;
+    color: #2a2a2a;
 }
 
 .btn-icon {
     font-size: 20px;
     text-shadow: 0 0 8px #00ff00;
+    pointer-events: none;
 }
 
 .btn-text {
-    letter-spacing: 2px;
     text-shadow: 0 0 5px #00ff00;
+    pointer-events: none;
 }
 
+/* Tag "SEM SAVE" no botão Continuar */
+.btn-tag {
+    position: absolute;
+    right: 14px;
+    font-size: 9px;
+    color: #1a1a1a;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
+/* Botão primário — destaque sutil */
+.menu-btn.primary {
+    border-color: #00ff00;
+    box-shadow:
+        0 0 14px rgba(0, 255, 0, 0.25),
+        inset 0 0 6px rgba(0, 255, 0, 0.05);
+}
+
+/* Rodapé do Menu */
 .menu-footer {
     text-align: center;
-    padding: 20px;
-    font-size: 10px;
-    color: #00aa00;
-    opacity: 0.6;
-    border-top: 1px solid rgba(0, 255, 0, 0.2);
+    padding: 8px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-/* ========================================
+.menu-footer p {
+    font-size: 10px;
+    color: #00aa00;
+    opacity: 0.55;
+}
+
+.version-tag {
+    font-size: 9px;
+    color: #005500;
+    letter-spacing: 2px;
+}
+
+/* ================================================
    PAINEL DE CONFIGURAÇÕES
-======================================== */
-.settings-panel {
-    background: rgba(0, 0, 0, 0.95);
+================================================ */
+#settingsPanel {
+    background: rgba(0, 0, 0, 0.97);
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    flex-direction: column;
+    z-index: 200;
 }
 
 .settings-container {
     width: 100%;
-    max-width: 500px;
-    height: 100vh;
-    background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+    max-width: 480px;
+    height: 100%;
+    background: #0a0a0a;
     border-left: 2px solid #00ff00;
     border-right: 2px solid #00ff00;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .settings-header {
     background: #000;
     border-bottom: 2px solid #00ff00;
-    padding: 15px 20px;
+    padding: 14px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
     box-shadow: 0 2px 10px rgba(0, 255, 0, 0.3);
 }
 
 .settings-header h2 {
-    font-size: 18px;
+    font-size: 16px;
     color: #00ff00;
     text-shadow: 0 0 10px #00ff00;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
 }
 
 .close-btn {
     background: transparent;
     border: 2px solid #ff0000;
     color: #ff0000;
-    font-size: 24px;
+    font-size: 20px;
     width: 40px;
     height: 40px;
     cursor: pointer;
@@ -191,6 +336,8 @@ body {
     justify-content: center;
     font-family: 'Courier New', monospace;
     transition: all 0.2s;
+    touch-action: manipulation;
+    flex-shrink: 0;
 }
 
 .close-btn:active {
@@ -198,10 +345,12 @@ body {
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
+/* Abas */
 .settings-tabs {
     display: flex;
     background: #000;
     border-bottom: 2px solid #00ff00;
+    flex-shrink: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -210,14 +359,16 @@ body {
     flex: 1;
     background: transparent;
     border: none;
-    border-right: 1px solid #003300;
-    color: #00aa00;
-    padding: 12px 8px;
+    border-right: 1px solid #002200;
+    color: #006600;
+    padding: 12px 6px;
     font-family: 'Courier New', monospace;
-    font-size: 11px;
+    font-size: 10px;
+    letter-spacing: 1px;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
+    touch-action: manipulation;
 }
 
 .tab-btn:last-child {
@@ -225,16 +376,18 @@ body {
 }
 
 .tab-btn.active {
-    background: #002200;
+    background: #001a00;
     color: #00ff00;
     text-shadow: 0 0 5px #00ff00;
     border-bottom: 2px solid #00ff00;
 }
 
+/* Conteúdo das Abas */
 .settings-content {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
+    padding: 18px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tab-content {
@@ -246,9 +399,9 @@ body {
 }
 
 .setting-item {
-    background: rgba(0, 255, 0, 0.05);
-    border: 1px solid #003300;
-    padding: 15px;
+    background: rgba(0, 255, 0, 0.03);
+    border: 1px solid #002200;
+    padding: 14px;
     margin-bottom: 12px;
 }
 
@@ -258,37 +411,36 @@ body {
     align-items: center;
     font-size: 13px;
     color: #00ff00;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .value-display {
     color: #00ff00;
     font-weight: bold;
     text-shadow: 0 0 5px #00ff00;
-    min-width: 50px;
+    min-width: 45px;
     text-align: right;
 }
 
 /* Toggle Switch */
 .toggle-switch {
     position: relative;
-    width: 50px;
-    height: 26px;
+    width: 52px;
+    height: 28px;
+    flex-shrink: 0;
 }
 
 .toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
+    position: absolute;
 }
 
 .toggle-slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     background: #001a00;
     border: 2px solid #003300;
     transition: 0.3s;
@@ -296,11 +448,11 @@ body {
 
 .toggle-slider:before {
     position: absolute;
-    content: "";
+    content: '';
     height: 18px;
     width: 18px;
-    left: 2px;
-    bottom: 2px;
+    left: 3px;
+    bottom: 3px;
     background: #003300;
     transition: 0.3s;
 }
@@ -325,13 +477,14 @@ body {
     outline: none;
     appearance: none;
     -webkit-appearance: none;
+    cursor: pointer;
 }
 
 .slider::-webkit-slider-thumb {
     appearance: none;
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     background: #00ff00;
     cursor: pointer;
     border: 2px solid #003300;
@@ -339,8 +492,8 @@ body {
 }
 
 .slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     background: #00ff00;
     cursor: pointer;
     border: 2px solid #003300;
@@ -349,536 +502,34 @@ body {
 
 .settings-footer {
     text-align: center;
-    padding: 15px;
+    padding: 12px;
     font-size: 10px;
     color: #00aa00;
-    opacity: 0.6;
-    border-top: 1px solid rgba(0, 255, 0, 0.2);
+    opacity: 0.55;
+    border-top: 1px solid #002200;
+    flex-shrink: 0;
 }
 
-/* ========================================
-   INTRO SCREEN (TERMO DE COMPROMISSO)
-======================================== */
-.intro-screen {
-    background: #000;
-    align-items: center;
-    justify-content: center;
-    overflow-y: auto;
-}
-
-.intro-container {
-    width: 100%;
-    max-width: 600px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-}
-
-.document-header {
-    text-align: center;
-    padding: 20px 15px;
-    border: 2px solid #00ff00;
-    background: rgba(0, 255, 0, 0.05);
-    margin-bottom: 20px;
-}
-
-.company-logo {
-    font-size: 20px;
-    color: #00ff00;
-    text-shadow: 0 0 10px #00ff00;
-    letter-spacing: 3px;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-.document-title {
-    font-size: 11px;
-    color: #00aa00;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
-
-.document-id {
-    font-size: 9px;
-    color: #006600;
-    letter-spacing: 2px;
-}
-
-.document-content {
-    flex: 1;
-    background: rgba(0, 255, 0, 0.02);
-    border: 1px solid #003300;
-    padding: 20px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-}
-
-.typewriter {
-    font-size: 13px;
-    line-height: 1.8;
-    color: #00ff00;
-    white-space: pre-wrap;
-}
-
-.document-footer {
-    text-align: center;
-    padding: 15px;
-}
-
-.accept-btn {
-    background: linear-gradient(180deg, #002200 0%, #001100 100%);
-    border: 3px solid #00ff00;
-    color: #00ff00;
-    padding: 18px 40px;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    letter-spacing: 2px;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-    transition: all 0.3s;
-    touch-action: manipulation;
-}
-
-.accept-btn:active {
-    background: linear-gradient(180deg, #003300 0%, #002200 100%);
-    box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
-    transform: scale(0.98);
-}
-
-.btn-glow {
-    text-shadow: 0 0 10px #00ff00;
-    animation: pulse-glow 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-    0%, 100% { text-shadow: 0 0 10px #00ff00; }
-    50% { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
-}
-
-.copyright {
-    font-size: 10px;
-    color: #00aa00;
-    opacity: 0.6;
-}
-
-/* ========================================
-   JOGO (Estilos anteriores mantidos)
-======================================== */
-.game-container {
-    flex-direction: column;
-    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
-}
-
-/* === BARRA DE STATUS === */
-.status-bar {
-    background: #000;
-    border-bottom: 2px solid #00ff00;
-    padding: 12px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 255, 0, 0.3);
-}
-
-.status-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-}
-
-.label {
-    color: #00ff00;
-    font-weight: bold;
-    text-shadow: 0 0 5px #00ff00;
-}
-
-.heat-bar {
-    width: 120px;
-    height: 18px;
-    background: #001a00;
-    border: 2px solid #00ff00;
-    position: relative;
-    overflow: hidden;
-}
-
-.heat-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px currentColor;
-}
-
-.heat-value {
-    min-width: 35px;
-    text-align: right;
-    font-weight: bold;
-}
-
-.time {
-    font-size: 13px;
-}
-
-#gameTime {
-    color: #00ff00;
-    text-shadow: 0 0 5px #00ff00;
-    font-weight: bold;
-}
-
-/* === MONITOR CRT === */
-.monitor-display {
-    flex: 1;
-    position: relative;
-    background: #000;
-    margin: 10px;
-    border: 3px solid #333;
-    box-shadow: 
-        inset 0 0 50px rgba(0, 255, 0, 0.1),
-        0 0 20px rgba(0, 0, 0, 0.8);
-    overflow: hidden;
-}
-
-/* Efeito Scanlines (Linhas de TV) */
-.scanlines {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.15),
-        rgba(0, 0, 0, 0.15) 1px,
-        transparent 1px,
-        transparent 2px
-    );
-    pointer-events: none;
-    z-index: 10;
-    animation: scanline-move 8s linear infinite;
-}
-
-@keyframes scanline-move {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(10px); }
-}
-
-/* Brilho CRT Verde */
-.crt-glow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(
-        ellipse at center,
-        rgba(0, 255, 0, 0.05) 0%,
-        transparent 70%
-    );
-    pointer-events: none;
-    z-index: 5;
-}
-
-.display-content {
-    width: 100%;
-    height: 100%;
-    padding: 15px;
-    position: relative;
-    z-index: 1;
-}
-
-/* === CÂMERA === */
-.camera-feed {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.camera-header {
-    background: rgba(0, 255, 0, 0.1);
-    border: 1px solid #00ff00;
-    padding: 8px 12px;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.camera-label {
-    font-weight: bold;
-    font-size: 14px;
-    text-shadow: 0 0 5px #00ff00;
-}
-
-.camera-time {
-    font-size: 13px;
-}
-
-.camera-view {
-    flex: 1;
-    background: #000;
-    border: 2px solid #00ff00;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.boot-screen {
-    text-align: center;
-}
-
-.ascii-art {
-    font-size: 6px;
-    line-height: 1.2;
-    color: #00ff00;
-    text-shadow: 0 0 10px #00ff00;
-    margin-bottom: 20px;
-}
-
-.boot-text {
-    font-size: 12px;
-    margin: 10px 0;
-    color: #00ff00;
-    text-shadow: 0 0 5px #00ff00;
-}
-
-.blink {
-    animation: blink 1.5s infinite;
-}
-
-@keyframes blink {
-    0%, 50%, 100% { opacity: 1; }
-    25%, 75% { opacity: 0.3; }
-}
-
-.camera-footer {
-    background: rgba(255, 0, 0, 0.1);
-    border: 1px solid #ff0000;
-    padding: 6px 12px;
-    margin-top: 10px;
-    text-align: center;
-}
-
-.footer-text {
-    color: #ff0000;
-    font-size: 11px;
-    text-shadow: 0 0 5px #ff0000;
-    animation: blink 2s infinite;
-}
-
-/* === CONTROLES DE CÂMERAS === */
-.camera-controls {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    gap: 10px;
-    background: #000;
-    border-top: 2px solid #00ff00;
-}
-
-.controls-left,
-.controls-right {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-}
-
-.cam-button,
-.system-button {
-    background: linear-gradient(180deg, #002200 0%, #001100 100%);
-    border: 2px solid #00ff00;
-    color: #00ff00;
-    padding: 12px 8px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-    transition: all 0.2s;
-    touch-action: manipulation;
-}
-
-.cam-button:active,
-.system-button:active {
-    background: linear-gradient(180deg, #003300 0%, #002200 100%);
-    box-shadow: 
-        0 0 15px rgba(0, 255, 0, 0.5),
-        inset 0 0 10px rgba(0, 255, 0, 0.3);
-    transform: scale(0.95);
-}
-
-.cam-number {
-    font-size: 18px;
-    font-weight: bold;
-    text-shadow: 0 0 8px #00ff00;
-}
-
-.cam-name {
-    font-size: 9px;
-    opacity: 0.8;
-}
-
-.system-button {
-    background: linear-gradient(180deg, #220000 0%, #110000 100%);
-    border-color: #ff0000;
-    color: #ff0000;
-}
-
-.system-button:active {
-    background: linear-gradient(180deg, #330000 0%, #220000 100%);
-    box-shadow: 
-        0 0 15px rgba(255, 0, 0, 0.5),
-        inset 0 0 10px rgba(255, 0, 0, 0.3);
-}
-
-.system-button .cam-number {
-    text-shadow: 0 0 8px #ff0000;
-}
-
-/* === ALERTA DE SUPERAQUECIMENTO === */
-.overheat-warning {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.overheat-warning.active {
-    display: flex;
-}
-
-.warning-content {
-    text-align: center;
-    padding: 30px;
-}
-
-.warning-content h2 {
-    color: #ff0000;
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-shadow: 0 0 20px #ff0000;
-    animation: blink 0.5s infinite;
-}
-
-.warning-content p {
-    color: #ffff00;
-    font-size: 16px;
-    margin-bottom: 20px;
-}
-
-.cooldown-bar {
-    width: 250px;
-    height: 25px;
-    background: #001a00;
-    border: 2px solid #00ff00;
-    margin: 0 auto;
-}
-
-.cooldown-fill {
-    height: 100%;
-    width: 0%;
-    background: #00ff00;
-    box-shadow: 0 0 10px #00ff00;
-    transition: width 0.1s linear;
-}
-
-/* === RESPONSIVIDADE === */
-@media (max-width: 360px) {
-    .game-title {
-        font-size: 28px;
-    }
-    
-    .ascii-art {
-        font-size: 5px;
-    }
-    
-    .cam-number {
-        font-size: 16px;
-    }
-    
-    .cam-name {
-        font-size: 8px;
-    }
-}
-
-@media (min-height: 700px) {
-    .cam-button,
-    .system-button {
-        padding: 15px 10px;
-    }
-    
-    .menu-btn {
-        padding: 20px 25px;
-    }
-
-  /* ========================================
-   PATCH — BLOQUEIO LANDSCAPE
-   Módulo isolado, não afeta o resto
-======================================== */
-@media screen and (orientation: landscape) and (max-height: 450px) {
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: #000;
-        z-index: 99999;
-    }
-
-    body::after {
-        content: '⟳  GIRE O DISPOSITIVO PARA CONTINUAR';
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        color: #00ff00;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        text-align: center;
-        text-shadow: 0 0 10px #00ff00;
-        letter-spacing: 2px;
-        z-index: 100000;
-    }
-}
-
-/* ========================================
+/* ================================================
    INTRO SCREEN — E-MAIL DA AETHER CORP
-   Módulo isolado
-======================================== */
-.intro-screen {
+================================================ */
+#introScreen {
     background: #000;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    overflow: hidden;
 }
 
 .intro-container {
     width: 100%;
     max-width: 600px;
-    height: 100vh;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    border-left: 1px solid #003300;
-    border-right: 1px solid #003300;
+    border-left: 1px solid #002200;
+    border-right: 1px solid #002200;
 }
 
-/* Cabeçalho do Cliente de E-mail */
 .email-client-header {
     background: #000;
     border-bottom: 2px solid #00ff00;
@@ -887,7 +538,7 @@ body {
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
-    box-shadow: 0 2px 10px rgba(0, 255, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 255, 0, 0.2);
 }
 
 .email-client-title {
@@ -910,10 +561,9 @@ body {
     text-shadow: 0 0 5px #00ff00;
 }
 
-/* Metadados do E-mail */
 .email-meta {
-    background: rgba(0, 255, 0, 0.03);
-    border-bottom: 1px solid #003300;
+    background: rgba(0, 255, 0, 0.02);
+    border-bottom: 1px solid #002200;
     padding: 12px 16px;
     flex-shrink: 0;
 }
@@ -923,7 +573,7 @@ body {
     gap: 10px;
     margin-bottom: 6px;
     font-size: 11px;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 .email-meta-row:last-child {
@@ -931,26 +581,24 @@ body {
 }
 
 .meta-label {
-    color: #006600;
-    min-width: 60px;
+    color: #005500;
+    min-width: 62px;
     flex-shrink: 0;
     letter-spacing: 1px;
 }
 
 .meta-value {
     color: #00ff00;
-    text-shadow: 0 0 4px rgba(0, 255, 0, 0.5);
+    text-shadow: 0 0 4px rgba(0, 255, 0, 0.4);
     word-break: break-all;
 }
 
-/* Corpo do E-mail */
 .email-body {
     flex: 1;
-    padding: 20px 16px;
+    padding: 18px 16px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background: #000;
-    position: relative;
 }
 
 .typewriter-text {
@@ -964,88 +612,84 @@ body {
 .cursor-blink {
     color: #00ff00;
     text-shadow: 0 0 8px #00ff00;
-    animation: blink 0.7s infinite;
+    animation: blink 0.7s step-end infinite;
     font-size: 14px;
 }
 
-/* Rodapé do E-mail */
 .email-footer {
-    background: rgba(0, 255, 0, 0.03);
-    border-top: 1px solid #003300;
+    background: rgba(0, 255, 0, 0.02);
+    border-top: 1px solid #002200;
     padding: 14px 16px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
 }
 
 .email-signature {
     font-size: 10px;
-    color: #006600;
+    color: #005500;
     line-height: 1.8;
-    letter-spacing: 0.5px;
 }
 
 .email-encrypt {
-    color: #004d00;
+    color: #003d00;
     font-size: 9px;
-    letter-spacing: 0.5px;
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
 .confirm-btn {
+    width: 100%;
     background: linear-gradient(180deg, #002200 0%, #001100 100%);
     border: 2px solid #00ff00;
     color: #00ff00;
     padding: 16px;
     font-family: 'Courier New', monospace;
     font-size: 14px;
-    cursor: pointer;
     letter-spacing: 2px;
+    cursor: pointer;
     text-shadow: 0 0 8px #00ff00;
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+    box-shadow: 0 0 14px rgba(0, 255, 0, 0.2);
     transition: all 0.3s;
     touch-action: manipulation;
-    width: 100%;
 }
 
 .confirm-btn:active {
-    background: linear-gradient(180deg, #003300 0%, #002200 100%);
-    box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+    background: #003300;
+    box-shadow: 0 0 28px rgba(0, 255, 0, 0.5);
     transform: scale(0.98);
 }
 
-/* ========================================
-   CENA 3D — ESTACIONAMENTO
-   Módulo isolado
-======================================== */
-.scene-container {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100vh;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    background: #000;
-    z-index: 50;
+.copyright-small {
+    font-size: 9px;
+    color: #003300;
+    text-align: center;
+    opacity: 0.7;
 }
 
-.scene-container.active {
-    display: block;
-    opacity: 1;
+/* ================================================
+   CENA 3D — ESTACIONAMENTO
+================================================ */
+#sceneContainer {
+    background: #000;
+    flex-direction: column;
 }
 
 #threeCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     display: block;
 }
 
-/* HUD da Cena 3D */
 .scene-hud {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     display: flex;
     flex-direction: column;
@@ -1054,13 +698,9 @@ body {
     z-index: 10;
 }
 
-.scene-hud-top {
-    text-align: center;
-}
-
+.scene-hud-top,
 .scene-hud-bottom {
     text-align: center;
-    padding-bottom: 10px;
 }
 
 .scene-label {
@@ -1069,21 +709,20 @@ body {
     color: #00ff00;
     text-shadow: 0 0 8px #00ff00;
     letter-spacing: 2px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 6px 12px;
-    border: 1px solid #003300;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 6px 14px;
+    border: 1px solid #002200;
 }
 
 .scene-hint {
     font-family: 'Courier New', monospace;
     font-size: 10px;
-    color: #006600;
-    letter-spacing: 1px;
+    color: #005500;
     background: rgba(0, 0, 0, 0.6);
     padding: 5px 10px;
+    letter-spacing: 1px;
 }
 
-/* Zonas de Controle Touch */
 .touch-zone {
     position: absolute;
     bottom: 0;
@@ -1092,74 +731,382 @@ body {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding-bottom: 30px;
+    padding-bottom: 28px;
     z-index: 20;
-    border-top: 1px solid rgba(0, 255, 0, 0.1);
+    border-top: 1px solid rgba(0, 255, 0, 0.08);
+    transition: background 0.15s;
 }
 
 .touch-zone.left {
     left: 0;
-    border-right: 1px solid rgba(0, 255, 0, 0.15);
-    background: rgba(0, 255, 0, 0.03);
+    border-right: 1px solid rgba(0, 255, 0, 0.1);
+    background: rgba(0, 255, 0, 0.02);
 }
 
 .touch-zone.right {
     right: 0;
-    background: rgba(0, 255, 0, 0.02);
+    background: rgba(0, 255, 0, 0.01);
 }
 
 .touch-zone:active {
-    background: rgba(0, 255, 0, 0.08);
+    background: rgba(0, 255, 0, 0.07);
 }
 
 .touch-label {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     font-family: 'Courier New', monospace;
-    font-size: 11px;
-    color: rgba(0, 255, 0, 0.5);
+    font-size: 10px;
+    color: rgba(0, 255, 0, 0.4);
     letter-spacing: 2px;
     pointer-events: none;
 }
 
 .touch-icon {
+    font-size: 20px;
+    color: rgba(0, 255, 0, 0.35);
+    text-shadow: 0 0 6px rgba(0, 255, 0, 0.25);
+}
+
+/* ================================================
+   JOGO — HUD PRINCIPAL
+================================================ */
+#gameContainer {
+    flex-direction: column;
+    background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
+}
+
+.status-bar {
+    background: #000;
+    border-bottom: 2px solid #00ff00;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(0, 255, 0, 0.25);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.label {
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.heat-bar {
+    width: 110px;
+    height: 16px;
+    background: #001a00;
+    border: 2px solid #00ff00;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.heat-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00ff00 0%, #ffff00 55%, #ff0000 100%);
+    transition: width 0.3s ease;
+}
+
+.heat-value {
+    min-width: 36px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.time {
+    font-size: 13px;
+}
+
+#gameTime {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    font-weight: bold;
+}
+
+.monitor-display {
+    flex: 1;
+    position: relative;
+    background: #000;
+    margin: 8px;
+    border: 3px solid #222;
+    box-shadow: inset 0 0 40px rgba(0, 255, 0, 0.08);
+    overflow: hidden;
+    min-height: 0;
+}
+
+.scanlines {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.13),
+        rgba(0, 0, 0, 0.13) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 10;
+    animation: scanline-move 8s linear infinite;
+}
+
+@keyframes scanline-move {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(10px); }
+}
+
+.crt-glow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 255, 0, 0.04) 0%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 5;
+}
+
+.display-content {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    padding: 12px;
+    z-index: 1;
+}
+
+.camera-feed {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.camera-header {
+    background: rgba(0, 255, 0, 0.08);
+    border: 1px solid #00ff00;
+    padding: 7px 12px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.camera-label {
+    font-weight: bold;
+    font-size: 13px;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.camera-time {
+    font-size: 12px;
+}
+
+.camera-view {
+    flex: 1;
+    background: #000;
+    border: 2px solid #00ff00;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.boot-screen {
+    text-align: center;
+}
+
+.ascii-art {
+    font-size: 5.5px;
+    line-height: 1.2;
+    color: #00ff00;
+    text-shadow: 0 0 8px #00ff00;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.boot-text {
+    font-size: 11px;
+    margin: 8px 0;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.camera-footer {
+    background: rgba(255, 0, 0, 0.08);
+    border: 1px solid #ff0000;
+    padding: 5px 12px;
+    margin-top: 8px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.footer-text {
+    color: #ff0000;
+    font-size: 10px;
+    text-shadow: 0 0 5px #ff0000;
+}
+
+.camera-controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    gap: 8px;
+    background: #000;
+    border-top: 2px solid #00ff00;
+    flex-shrink: 0;
+}
+
+.controls-left,
+.controls-right {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.cam-button,
+.system-button {
+    background: linear-gradient(180deg, #002200 0%, #001100 100%);
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 10px 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+.cam-button:active {
+    background: #003300;
+    box-shadow:
+        0 0 14px rgba(0, 255, 0, 0.5),
+        inset 0 0 8px rgba(0, 255, 0, 0.25);
+    transform: scale(0.94);
+}
+
+.cam-number {
+    font-size: 17px;
+    font-weight: bold;
+    text-shadow: 0 0 7px #00ff00;
+}
+
+.cam-name {
+    font-size: 8px;
+    opacity: 0.75;
+}
+
+.system-button {
+    background: linear-gradient(180deg,
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+.system-button:active {
+    background: #2d0000;
+    box-shadow:
+        0 0 14px rgba(255, 0, 0, 0.5),
+        inset 0 0 8px rgba(255, 0, 0, 0.25);
+    transform: scale(0.94);
+}
+
+.system-button .cam-number {
+    text-shadow: 0 0 7px #ff0000;
+}
+
+.overheat-warning {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.96);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+}
+
+.overheat-warning.active {
+    display: flex;
+}
+
+.warning-content {
+    text-align: center;
+    padding: 30px;
+}
+
+.warning-content h2 {
+    color: #ff0000;
     font-size: 22px;
-    color: rgba(0, 255, 0, 0.4);
-    text-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+    margin-bottom: 18px;
+    text-shadow: 0 0 18px #ff0000;
 }
 
-/* ========================================
-   RESPONSIVIDADE — INTRO E CENA 3D
-======================================== */
+.warning-content p {
+    color: #ffff00;
+    font-size: 14px;
+    margin-bottom: 18px;
+}
+
+.cooldown-bar {
+    width: 240px;
+    height: 22px;
+    background: #001a00;
+    border: 2px solid #00ff00;
+    margin: 0 auto;
+}
+
+.cooldown-fill {
+    height: 100%;
+    width: 0%;
+    background: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    transition: width 0.1s linear;
+}
+
+/* ================================================
+   ANIMAÇÕES GLOBAIS
+================================================ */
+.blink {
+    animation: blink 1.4s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}
+
+/* ================================================
+   RESPONSIVIDADE
+================================================ */
 @media (max-width: 360px) {
-    .email-meta-row {
-        font-size: 10px;
-    }
-
-    .typewriter-text {
-        font-size: 12px;
-        line-height: 1.8;
-    }
-
-    .confirm-btn {
-        font-size: 12px;
-        padding: 14px;
-    }
-
-    .scene-label {
-        font-size: 10px;
-    }
+    .game-title    { font-size: 30px; }
+    .ascii-art     { font-size: 4.5px; }
+    .cam-number    { font-size: 15px; }
+    .cam-name      { font-size: 7px; }
+    .menu-btn      { font-size: 14px; padding: 15px; }
+    .typewriter-text { font-size: 12px; line-height: 1.8; }
 }
 
-@media (min-height: 700px) {
-    .email-body {
-        padding: 25px 20px;
-    }
-
-    .confirm-btn {
-        padding: 18px;
-        font-size: 15px;
-    }
+@media (min-height: 750px) {
+    .menu-btn      { padding: 22px 20px; }
+    .cam-button,
+    .system-button { padding: 14px 8px; }
 }

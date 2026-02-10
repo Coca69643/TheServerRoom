@@ -1,729 +1,179 @@
-const GameState = {
-    currentScreen: 'menu',
-    isPaused: false,
-    gameStarted: false,
-    introCompleted: false,
-    saveExists: false,
-    difficulty: 'normal'
-};
-
-// ===============================
-// 2. SISTEMA DE CONFIGURAÇÕES
-// ===============================
-const Settings = {
-    // Gráficos
-    crtEffect: true,
-    scanlines: true,
-    showFPS: false,
-    
-    // Áudio
-    masterVolume: 100,
-    musicVolume: 80,
-    sfxVolume: 90,
-    
-    // Interface
-    vibration: true,
-    uiScale: 100,
-    
-    // Jogabilidade
-    difficulty: 'normal',
-    
-    // Salvar configurações
-    save: function() {
-        localStorage.setItem('serverRoomSettings', JSON.stringify({
-            crtEffect: this.crtEffect,
-            scanlines: this.scanlines,
-            showFPS: this.showFPS,
-            masterVolume: this.masterVolume,
-            musicVolume: this.musicVolume,
-            sfxVolume: this.sfxVolume,
-            vibration: this.vibration,
-            uiScale: this.uiScale,
-            difficulty: this.difficulty
-        }));
-    },
-    
-    // Carregar configurações
-    load: function() {
-        const saved = localStorage.getItem('serverRoomSettings');
-        if (saved) {
-            const config = JSON.parse(saved);
-            Object.assign(this, config);
-            console.log('Configurações carregadas:', config);
-        }
-        return this;
-    },
-    
-    // Aplicar configurações no DOM
-    apply: function() {
-        // Aplicar efeitos visuais
-        document.body.classList.toggle('crt-effect', this.crtEffect);
-        document.body.classList.toggle('scanlines', this.scanlines);
-        
-        // Aplicar volume
-        if (window.audioManager) {
-            audioManager.setVolume('master', this.masterVolume);
-            audioManager.setVolume('music', this.musicVolume);
-            audioManager.setVolume('sfx', this.sfxVolume);
-        }
-        
-        // Atualizar dificuldade do jogo
-        GameState.difficulty = this.difficulty;
-        this.applyDifficulty();
-    },
-    
-    // Aplicar configurações de dificuldade
-    applyDifficulty: function() {
-        const difficulties = {
-            'easy': { aiLevel: 1, movementInterval: 15000 },
-            'normal': { aiLevel: 2, movementInterval: 10000 },
-            'hard': { aiLevel: 3, movementInterval: 7000 }
-        };
-        
-        const config = difficulties[this.difficulty];
-        if (config && window.byteAIMotor) {
-            byteAIMotor.setAILevel(config.aiLevel);
-            byteAIMotor.movementInterval = config.movementInterval;
-        }
-    }
-};
-
-// ===============================
-// 3. SISTEMA DE MENU PRINCIPAL
-// ===============================
-class MainMenu {
-    constructor() {
-        this.initElements();
-        this.bindEvents();
-        this.checkSave();
-    }
-    
-    initElements() {
-        this.elements = {
-            menuScreen: document.getElementById('menuScreen'),
-            settingsPanel: document.getElementById('settingsPanel'),
-            introScreen: document.getElementById('introScreen'),
-            gameScreen: document.getElementById('gameScreen'),
-            
-            // Botões do menu
-            newGameBtn: document.getElementById('newGameBtn'),
-            continueBtn: document.getElementById('continueBtn'),
-            settingsBtn: document.getElementById('settingsBtn'),
-            
-            // Configurações
-            closeSettingsBtn: document.getElementById('closeSettings'),
-            settingsTabs: document.querySelectorAll('.settings-tab'),
-            tabContents: document.querySelectorAll('.tab-content'),
-            
-            // Toggles
-            crtToggle: document.getElementById('crtToggle'),
-            scanlinesToggle: document.getElementById('scanlinesToggle'),
-            fpsToggle: document.getElementById('fpsToggle'),
-            vibrationToggle: document.getElementById('vibrationToggle'),
-            
-            // Sliders
-            difficultySlider: document.getElementById('difficultySlider'),
-            difficultyValue: document.getElementById('difficultyValue'),
-            masterVolumeSlider: document.getElementById('masterVolume'),
-            musicVolumeSlider: document.getElementById('musicVolume'),
-            sfxVolumeSlider: document.getElementById('sfxVolume'),
-            uiScaleSlider: document.getElementById('uiScale'),
-            
-            // Valores dos sliders
-            masterValue: document.getElementById('masterValue'),
-            musicValue: document.getElementById('musicValue'),
-            sfxValue: document.getElementById('sfxValue'),
-            uiScaleValue: document.getElementById('uiScaleValue'),
-            
-            // Intro
-            introText: document.getElementById('introText'),
-            acceptBtn: document.getElementById('acceptBtn')
-        };
-    }
-    
-    bindEvents() {
-        // Menu principal
-        this.elements.newGameBtn?.addEventListener('click', () => this.showIntro());
-        this.elements.continueBtn?.addEventListener('click', () => this.continueGame());
-        this.elements.settingsBtn?.addEventListener('click', () => this.showSettings());
-        
-        // Configurações
-        this.elements.closeSettingsBtn?.addEventListener('click', () => this.hideSettings());
-        
-        // Tabs das configurações
-        this.elements.settingsTabs?.forEach(tab => {
-            tab.addEventListener('click', (e) => this.switchTab(e));
-        });
-        
-        // Toggles
-        this.bindToggle('crtToggle', 'crtEffect', () => {
-            document.body.classList.toggle('crt-effect', Settings.crtEffect);
-        });
-        
-        this.bindToggle('scanlinesToggle', 'scanlines', () => {
-            document.body.classList.toggle('scanlines', Settings.scanlines);
-        });
-        
-        this.bindToggle('fpsToggle', 'showFPS', this.toggleFPS);
-        this.bindToggle('vibrationToggle', 'vibration');
-        
-        // Sliders
-        this.bindSlider('difficultySlider', 'difficulty', (value) => {
-            const difficulties = ['Fácil', 'Normal', 'Difícil'];
-            this.elements.difficultyValue.textContent = difficulties[value - 1];
-            Settings.difficulty = ['easy', 'normal', 'hard'][value - 1];
-            Settings.applyDifficulty();
-        });
-        
-        this.bindSlider('masterVolume', 'masterVolume', (value) => {
-            this.elements.masterValue.textContent = `${value}%`;
-        });
-        
-        this.bindSlider('musicVolume', 'musicVolume', (value) => {
-            this.elements.musicValue.textContent = `${value}%`;
-        });
-        
-        this.bindSlider('sfxVolume', 'sfxVolume', (value) => {
-            this.elements.sfxValue.textContent = `${value}%`;
-        });
-        
-        this.bindSlider('uiScale', 'uiScale', (value) => {
-            this.elements.uiScaleValue.textContent = `${value}%`;
-            document.documentElement.style.setProperty('--ui-scale', `${value/100}`);
-        });
-        
-        // Intro
-        this.elements.acceptBtn?.addEventListener('click', () => this.startGame());
-    }
-    
-    bindToggle(elementId, settingKey, callback = null) {
-        const element = this.elements[elementId];
-        if (!element) return;
-        
-        element.addEventListener('change', () => {
-            Settings[settingKey] = element.checked;
-            Settings.save();
-            if (callback) callback();
-        });
-    }
-    
-    bindSlider(elementId, settingKey, updateCallback = null) {
-        const element = this.elements[elementId];
-        if (!element) return;
-        
-        element.addEventListener('input', () => {
-            Settings[settingKey] = parseInt(element.value);
-            Settings.save();
-            if (updateCallback) updateCallback(Settings[settingKey]);
-        });
-    }
-    
-    checkSave() {
-        // Verificar se há save game
-        const saveData = localStorage.getItem('serverRoomSave');
-        this.elements.continueBtn.disabled = !saveData;
-        GameState.saveExists = !!saveData;
-    }
-    
-    showScreen(screenId) {
-        // Esconder todas as telas
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
-        
-        // Mostrar tela desejada
-        const screen = document.getElementById(screenId);
-        if (screen) {
-            screen.classList.add('active');
-            GameState.currentScreen = screenId;
-        }
-    }
-    
-    showIntro() {
-        this.showScreen('introScreen');
-        this.startTypewriter();
-    }
-    
-    continueGame() {
-        if (!GameState.saveExists) return;
-        
-        // Carregar save game
-        const saveData = JSON.parse(localStorage.getItem('serverRoomSave'));
-        console.log('Save carregado:', saveData);
-        
-        // Iniciar jogo diretamente
-        this.startGame();
-    }
-    
-    showSettings() {
-        this.elements.settingsPanel.classList.add('active');
-        this.loadSettingsToUI();
-    }
-    
-    hideSettings() {
-        this.elements.settingsPanel.classList.remove('active');
-        Settings.apply();
-    }
-    
-    switchTab(e) {
-        const tabId = e.target.dataset.tab;
-        
-        // Ativar tab
-        this.elements.settingsTabs?.forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.tab === tabId);
-        });
-        
-        // Mostrar conteúdo
-        this.elements.tabContents?.forEach(content => {
-            content.classList.toggle('active', content.id === `${tabId}Tab`);
-        });
-    }
-    
-    loadSettingsToUI() {
-        // Carregar toggles
-        this.elements.crtToggle.checked = Settings.crtEffect;
-        this.elements.scanlinesToggle.checked = Settings.scanlines;
-        this.elements.fpsToggle.checked = Settings.showFPS;
-        this.elements.vibrationToggle.checked = Settings.vibration;
-        
-        // Carregar sliders
-        this.elements.difficultySlider.value = 
-            Settings.difficulty === 'easy' ? 1 : 
-            Settings.difficulty === 'normal' ? 2 : 3;
-        
-        this.elements.masterVolumeSlider.value = Settings.masterVolume;
-        this.elements.musicVolumeSlider.value = Settings.musicVolume;
-        this.elements.sfxVolumeSlider.value = Settings.sfxVolume;
-        this.elements.uiScaleSlider.value = Settings.uiScale;
-        
-        // Atualizar labels
-        const difficulties = ['Fácil', 'Normal', 'Difícil'];
-        this.elements.difficultyValue.textContent = 
-            difficulties[this.elements.difficultySlider.value - 1];
-        
-        this.elements.masterValue.textContent = `${Settings.masterVolume}%`;
-        this.elements.musicValue.textContent = `${Settings.musicVolume}%`;
-        this.elements.sfxValue.textContent = `${Settings.sfxVolume}%`;
-        this.elements.uiScaleValue.textContent = `${Settings.uiScale}%`;
-    }
-    
-    // ===============================
-    // 4. INTRO COM TYPEWRITER EFFECT
-    // ===============================
-    startTypewriter() {
-        const textElement = this.elements.introText;
-        const acceptButton = this.elements.acceptBtn;
-        
-        // Texto do termo de compromisso
-        const introText = `SERVIDOR 05 - TERMO DE COMPROMISSO
-
-BEM-VINDO AO SISTEMA DE VIGILÂNCIA
------------------------------------
-CARGO: TÉCNICO DE SEGURANÇA NOTURNO
-LOCAL: SALA DO SERVIDOR 05
-PERÍODO: 00:00 - 06:00
-
-TERMOS E CONDIÇÕES:
-1. VOCÊ DEVE MONITORAR 5 CÂMERAS
-2. NENHUM ACESSO EXTERNO PERMITIDO
-3. BYTE (UNIDADE DE MANUTENÇÃO) PODE SE TORNAR HOSTIL
-4. RELATAR QUALQUER ANORMALIDADE
-5. NÃO ABANDONAR O POSTO
-
-AVISO DE SEGURANÇA:
-O SISTEMA BYTE PODE APRESENTAR
-COMPORTAMENTOS IMPREVISÍVEIS À NOITE.
-MANTENHA VIGILÂNCIA CONSTANTE.
-
-ACEITAR ESTE TERMO INDICA QUE VOCÊ
-COMPREENDE OS RISCOS E ASSUME TODA
-RESPONSABILIDADE POR EVENTUAIS
-INCIDENTES.
-
-PRESSIONE "ACEITAR RISCOS" PARA INICIAR.`;
-        
-        textElement.textContent = '';
-        acceptButton.style.opacity = '0';
-        acceptButton.style.pointerEvents = 'none';
-        
-        let i = 0;
-        const speed = 30; // ms por caractere
-        
-        function typeWriter() {
-            if (i < introText.length) {
-                const char = introText.charAt(i);
-                textElement.textContent += char;
-                
-                // Efeito sonoro (opcional)
-                if (char !== ' ' && i % 3 === 0) {
-                    playTypeSound();
-                }
-                
-                i++;
-                setTimeout(typeWriter, speed);
-            } else {
-                // Texto completo - mostrar botão
-                acceptButton.style.opacity = '1';
-                acceptButton.style.pointerEvents = 'auto';
-                acceptButton.classList.add('pulse');
-            }
-        }
-        
-        typeWriter();
-    }
-    
-    startGame() {
-        this.showScreen('gameScreen');
-        GameState.gameStarted = true;
-        GameState.introCompleted = true;
-        
-        // Inicializar motor do Byte
-        initializeByteAI();
-        
-        // Aplicar configurações
-        Settings.apply();
-        Settings.applyDifficulty();
-        
-        // Iniciar sistema de câmeras (se existir)
-        if (window.startCameraSystem) {
-            startCameraSystem();
-        }
-        
-        // Mostrar notificação
-        this.showGameNotification('Sistema de vigilância ativado. Boa sorte.');
-        
-        // Salvar progresso
-        this.saveGame();
-    }
-    
-    showGameNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'game-notification';
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 20, 0, 0.9);
-            color: #0f0;
-            padding: 15px;
-            border: 2px solid #0f0;
-            border-radius: 5px;
-            font-family: monospace;
-            z-index: 1000;
-            animation: fadeInOut 3s ease-in-out;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
-    
-    saveGame() {
-        const saveData = {
-            timestamp: Date.now(),
-            difficulty: GameState.difficulty,
-            introCompleted: true,
-            night: 1
-        };
-        
-        localStorage.setItem('serverRoomSave', JSON.stringify(saveData));
-        this.checkSave(); // Atualizar botão CONTINUAR
-    }
-    
-    toggleFPS() {
-        if (Settings.showFPS) {
-            if (!window.fpsCounter) {
-                this.createFPSCounter();
-            } else {
-                window.fpsCounter.style.display = 'block';
-            }
-        } else {
-            if (window.fpsCounter) {
-                window.fpsCounter.style.display = 'none';
-            }
-        }
-    }
-    
-    createFPSCounter() {
-        const fpsCounter = document.createElement('div');
-        fpsCounter.id = 'fpsCounter';
-        fpsCounter.style.cssText = `
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #0f0;
-            padding: 5px 10px;
-            font-family: monospace;
-            font-size: 12px;
-            z-index: 9999;
-            border: 1px solid #0f0;
-        `;
-        
-        document.body.appendChild(fpsCounter);
-        window.fpsCounter = fpsCounter;
-        
-        let frameCount = 0;
-        let lastTime = performance.now();
-        
-        function updateFPS() {
-            frameCount++;
-            const currentTime = performance.now();
-            
-            if (currentTime - lastTime >= 1000) {
-                fpsCounter.textContent = `FPS: ${Math.round((frameCount * 1000) / (currentTime - lastTime))}`;
-                frameCount = 0;
-                lastTime = currentTime;
-            }
-            
-            if (Settings.showFPS) {
-                requestAnimationFrame(updateFPS);
-            }
-        }
-        
-        updateFPS();
-    }
-}
-
-// ===============================
-// 5. SISTEMA DE ÁUDIO (SIMPLIFICADO)
-// ===============================
-const audioManager = {
-    sounds: {},
-    
-    init: function() {
-        // Criar elementos de áudio
-        this.sounds = {
-            typewriter: this.createSound('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ'),
-            click: this.createSound('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ'),
-            cameraSwitch: this.createSound('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ')
-        };
-    },
-    
-    createSound: function(src) {
-        const audio = new Audio();
-        audio.src = src;
-        audio.preload = 'auto';
-        return audio;
-    },
-    
-    play: function(soundName) {
-        if (this.sounds[soundName] && Settings.sfxVolume > 0) {
-            const audio = this.sounds[soundName].cloneNode();
-            audio.volume = Settings.sfxVolume / 100 * Settings.masterVolume / 100;
-            audio.play().catch(e => console.log('Audio error:', e));
-        }
-    },
-    
-    setVolume: function(type, value) {
-        if (type === 'master') {
-            Settings.masterVolume = value;
-        } else if (type === 'music') {
-            Settings.musicVolume = value;
-        } else if (type === 'sfx') {
-            Settings.sfxVolume = value;
-        }
-        Settings.save();
-    }
-};
-
-// ===============================
-// 6. FUNÇÕES AUXILIARES
-// ===============================
-function playTypeSound() {
-    if (audioManager && Settings.sfxVolume > 0) {
-        audioManager.play('typewriter');
-    }
-}
-
-function vibrate(pattern = 50) {
-    if (Settings.vibration && 'vibrate' in navigator) {
-        navigator.vibrate(pattern);
-    }
-}
-
-// ===============================
-// 7. INICIALIZAÇÃO DO JOGO
-// ===============================
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('The Server Room - Inicializando...');
-    
-    // Carregar configurações
-    Settings.load();
-    
-    // Inicializar sistema de áudio
-    audioManager.init();
-    
-    // Inicializar menu principal
-    window.mainMenu = new MainMenu();
-    
-    // Aplicar configurações iniciais
-    Settings.apply();
-    
-    // Verificar e inicializar FPS counter se necessário
-    if (Settings.showFPS) {
-        setTimeout(() => mainMenu.toggleFPS(), 1000);
-    }
-    
-    // Efeito de inicialização
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        document.body.style.transition = 'opacity 0.5s';
-        document.body.style.opacity = '1';
-    }, 100);
-    
-    console.log('Jogo inicializado com sucesso!');
-});
-
-// ===============================
-// 8. EVENT LISTENERS GLOBAIS
-// ===============================
-// Fechar configurações com ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const settingsPanel = document.getElementById('settingsPanel');
-        if (settingsPanel?.classList.contains('active')) {
-            window.mainMenu?.hideSettings();
-        }
-    }
-});
-
-// Click sound em botões
-document.addEventListener('click', function(e) {
-    if (e.target.matches('button, .btn, .toggle, .tab')) {
-        vibrate(30);
-        audioManager.play('click');
-    }
-});
-
-// ===============================
-// 9. ESTILOS DINÂMICOS (CSS Variables)
-// ===============================
-const style = document.createElement('style');
-style.textContent = `
-    :root {
-        --ui-scale: 1;
-    }
-    
-    .crt-effect::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-      height: 100%;
-        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-        background-size: 100% 4px;
-        pointer-events: none;
-        z-index: 9999;
-        opacity: 0.3;
-    }
-    
-    .scanlines::after {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: repeating-linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.15) 0px,
-            rgba(0, 0, 0, 0.15) 1px,
-            transparent 1px,
-            transparent 2px
-        );
-        pointer-events: none;
-        z-index: 9998;
-    }
-    
-    .game-notification {
-        animation: fadeInOut 3s ease-in-out;
-    }
-    
-    @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-20px); }
-        15% { opacity: 1; transform: translateY(0); }
-        85% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-20px); }
-    }
-    
-    .pulse {
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
-    }
-    
-    /* Ajuste de escala da UI */
-    .screen {
-        transform: scale(var(--ui-scale));
-        transform-origin: center;
-        transition: transform 0.3s ease;
-    }
-`;
-
-document.head.appendChild(style);
-
-// ===============================
-// 10. INTEGRAÇÃO COM MOTOR BYTE
-// ===============================
-// O motor Byte (código anterior) deve ser incluído aqui ou em arquivo separado
-// Inicializamos quando o jogo começa
-```
 // ============================================================
-//  MÓDULO — FLUXO DE INTRODUÇÃO + CENA 3D
-//  Duck Dream Studios — The Server Room
-//  Desenvolvedor Sênior
-//  REGRA: Não interfere no código do Deep Seek acima
+//  THE SERVER ROOM v1.1.0
+//  Duck Dream Studios — Desenvolvedor Principal
+//  Todos os módulos integrados em arquivo único
 // ============================================================
 
-// === UTILITÁRIO DE TELAS ===
+// ============================================================
+//  MÓDULO 1 — GERENCIADOR DE TELAS
+// ============================================================
+
+const SCREENS = [
+    'mainMenu',
+    'settingsPanel',
+    'introScreen',
+    'sceneContainer',
+    'gameContainer'
+];
+
 function showScreen(id) {
-    const screens = [
-        'mainMenu',
-        'settingsPanel',
-        'introScreen',
-        'sceneContainer',
-        'gameContainer'
-    ];
+    console.log('[NAV] Navegando para:', id);
 
-    screens.forEach(screenId => {
+    SCREENS.forEach(screenId => {
         const el = document.getElementById(screenId);
-        if (!el) return;
-
-        if (screenId === id) {
-            el.classList.add('active');
-        } else {
-            // Protege o gameContainer do Deep Seek
-            if (screenId === 'gameContainer' && id !== 'gameContainer') return;
-            el.classList.remove('active');
+        if (!el) {
+            console.warn('[NAV] Tela não encontrada:', screenId);
+            return;
         }
+        el.classList.remove('active');
+    });
+
+    const target = document.getElementById(id);
+    if (!target) {
+        console.error('[NAV] ERRO: Tela alvo não encontrada:', id);
+        return;
+    }
+
+    target.classList.add('active');
+    console.log('[NAV] Tela ativa:', id);
+}
+
+// ============================================================
+//  MÓDULO 2 — MENU PRINCIPAL
+// ============================================================
+
+function initMenu() {
+    const newGameBtn  = document.getElementById('newGameBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+
+    // --- Verificação de elementos ---
+    if (!newGameBtn)  console.error('[MENU] newGameBtn não encontrado no DOM');
+    if (!continueBtn) console.error('[MENU] continueBtn não encontrado no DOM');
+    if (!settingsBtn) console.error('[MENU] settingsBtn não encontrado no DOM');
+
+    // --- NOVO JOGO ---
+    if (newGameBtn) {
+        newGameBtn.addEventListener('click', () => {
+            console.log('[MENU] Botão NOVO JOGO clicado');
+            vibrate(40);
+            startIntroScreen();
+        });
+    }
+
+    // --- CONTINUAR (desabilitado sem save) ---
+    if (continueBtn) {
+        continueBtn.setAttribute('disabled', 'true');
+        continueBtn.addEventListener('click', () => {
+            // Bloqueado — sem save disponível
+            console.log('[MENU] CONTINUAR bloqueado: sem save game');
+        });
+    }
+
+    // --- CONFIGURAÇÕES ---
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            console.log('[MENU] Botão CONFIGURAÇÕES clicado');
+            vibrate(30);
+            showScreen('settingsPanel');
+        });
+    }
+
+    console.log('[MENU] Módulo de menu iniciado');
+}
+
+// ============================================================
+//  MÓDULO 3 — PAINEL DE CONFIGURAÇÕES
+// ============================================================
+
+function initSettings() {
+    const closeBtn = document.getElementById('closeSettings');
+
+    // --- Fechar painel ---
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            console.log('[SETTINGS] Painel fechado');
+            vibrate(30);
+            showScreen('mainMenu');
+        });
+    }
+
+    // --- Sistema de abas ---
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            console.log('[SETTINGS] Aba selecionada:', tabId);
+
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.add('active');
+        });
+    });
+
+    // --- Sliders de áudio ---
+    bindSlider('masterVolume', 'masterVolValue', v => v + '%');
+    bindSlider('sfxVolume',    'sfxVolValue',    v => v + '%');
+    bindSlider('musicVolume',  'musicVolValue',  v => v + '%');
+    bindSlider('uiScale',      'uiScaleValue',   v => v + '%');
+
+    // --- Slider de dificuldade ---
+    bindSlider('difficulty', 'difficultyValue', v => {
+        const labels = ['Fácil', 'Normal', 'Difícil'];
+        return labels[parseInt(v)] || 'Normal';
+    });
+
+    // --- Toggle CRT ---
+    const crtToggle = document.getElementById('crtEffect');
+    if (crtToggle) {
+        crtToggle.addEventListener('change', () => {
+            const layer = document.getElementById('crtLayer');
+            if (layer) layer.style.display = crtToggle.checked ? 'block' : 'none';
+            console.log('[SETTINGS] CRT:', crtToggle.checked ? 'ON' : 'OFF');
+        });
+    }
+
+    // --- Toggle Scanlines ---
+    const scanToggle = document.getElementById('scanlinesEffect');
+    if (scanToggle) {
+        scanToggle.addEventListener('change', () => {
+            const layer = document.getElementById('scanlinesLayer');
+            if (layer) layer.style.display = scanToggle.checked ? 'block' : 'none';
+            console.log('[SETTINGS] Scanlines:', scanToggle.checked ? 'ON' : 'OFF');
+        });
+    }
+
+    // --- Toggle Vibração ---
+    const vibToggle = document.getElementById('vibration');
+    if (vibToggle) {
+        vibToggle.addEventListener('change', () => {
+            console.log('[SETTINGS] Vibração:', vibToggle.checked ? 'ON' : 'OFF');
+        });
+    }
+
+    console.log('[SETTINGS] Módulo de configurações iniciado');
+}
+
+function bindSlider(sliderId, displayId, formatter) {
+    const slider  = document.getElementById(sliderId);
+    const display = document.getElementById(displayId);
+    if (!slider || !display) return;
+
+    slider.addEventListener('input', () => {
+        display.textContent = formatter(slider.value);
     });
 }
 
-// === DATA/HORA NO CABEÇALHO DO E-MAIL ===
-function setEmailDate() {
-    const el = document.getElementById('emailDate');
-    if (!el) return;
+// ============================================================
+//  MÓDULO 4 — INTRO SCREEN (E-MAIL DA AETHER CORP)
+// ============================================================
 
-    const now = new Date();
-    const dd   = String(now.getDate()).padStart(2, '0');
-    const mm   = String(now.getMonth() + 1).padStart(2, '0');
-    const yyyy = now.getFullYear();
-    const hh   = String(now.getHours()).padStart(2, '0');
-    const min  = String(now.getMinutes()).padStart(2, '0');
-
-    el.textContent = `${dd}/${mm}/${yyyy}  ${hh}:${min}`;
-}
-
-// === TEXTO DO E-MAIL ===
 const EMAIL_TEXT =
 `Prezado(a) Técnico(a) de Plantão,
 
@@ -757,20 +207,35 @@ Atenciosamente,
 Departamento de Recursos Humanos
 Aether Computing Corp`;
 
-// === EFEITO TYPEWRITER ===
+function setEmailDate() {
+    const el = document.getElementById('emailDate');
+    if (!el) return;
+
+    const now  = new Date();
+    const dd   = String(now.getDate()).padStart(2, '0');
+    const mm   = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const hh   = String(now.getHours()).padStart(2, '0');
+    const min  = String(now.getMinutes()).padStart(2, '0');
+
+    el.textContent = `${dd}/${mm}/${yyyy}  ${hh}:${min}`;
+}
+
 function startTypewriter(text, targetId, cursorId, onComplete) {
     const target = document.getElementById(targetId);
     const cursor = document.getElementById(cursorId);
-    if (!target) return;
+    if (!target) {
+        console.error('[TYPEWRITER] Elemento não encontrado:', targetId);
+        return;
+    }
 
     let index = 0;
     target.textContent = '';
 
-    // Velocidade variável: pausa em pontuação
     function getDelay(char) {
-        if (['.', '!', '?'].includes(char)) return 120;
-        if ([',', ';', ':'].includes(char)) return 60;
-        if (char === '\n') return 40;
+        if (['.', '!', '?'].includes(char)) return 130;
+        if ([',', ';', ':'].includes(char)) return 65;
+        if (char === '\n')                  return 45;
         return 22;
     }
 
@@ -779,14 +244,13 @@ function startTypewriter(text, targetId, cursorId, onComplete) {
             target.textContent += text[index];
             index++;
 
-            // Auto-scroll suave
             const body = document.getElementById('emailBody');
             if (body) body.scrollTop = body.scrollHeight;
 
             setTimeout(type, getDelay(text[index - 1]));
         } else {
-            // Typewriter concluído
             if (cursor) cursor.style.display = 'none';
+            console.log('[TYPEWRITER] Texto completo');
             if (onComplete) onComplete();
         }
     }
@@ -794,32 +258,38 @@ function startTypewriter(text, targetId, cursorId, onComplete) {
     type();
 }
 
-// === BOTÃO CONFIRMAR RECEBIMENTO ===
 function showConfirmButton() {
     const btn = document.getElementById('confirmBtn');
     if (!btn) return;
 
-    btn.style.display = 'block';
-    btn.style.opacity = '0';
+    btn.style.display  = 'block';
+    btn.style.opacity  = '0';
     btn.style.transition = 'opacity 0.8s ease';
 
-    // Pequeno delay para o fade-in ser perceptível
-    setTimeout(() => {
-        btn.style.opacity = '1';
-    }, 100);
+    setTimeout(() => { btn.style.opacity = '1'; }, 80);
 
     btn.addEventListener('click', () => {
-        if (navigator.vibrate) navigator.vibrate(60);
+        console.log('[INTRO] Recebimento confirmado — iniciando cena 3D');
+        vibrate(60);
         initThreeScene();
     }, { once: true });
 }
 
-// === INICIAR INTRO SCREEN ===
 function startIntroScreen() {
+    console.log('[INTRO] Iniciando tela de e-mail');
+
+    // Reseta o estado da intro para permitir replay
+    const typewriterText = document.getElementById('typewriterText');
+    const typewriterCursor = document.getElementById('typewriterCursor');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    if (typewriterText)   typewriterText.textContent = '';
+    if (typewriterCursor) typewriterCursor.style.display = 'inline';
+    if (confirmBtn)       confirmBtn.style.display = 'none';
+
     showScreen('introScreen');
     setEmailDate();
 
-    // Pequeno delay antes de começar a digitar
     setTimeout(() => {
         startTypewriter(
             EMAIL_TEXT,
@@ -827,117 +297,116 @@ function startIntroScreen() {
             'typewriterCursor',
             showConfirmButton
         );
-    }, 600);
-}
-
-// === BOTÃO NOVO JOGO (MENU PRINCIPAL) ===
-const newGameBtn = document.getElementById('newGameBtn');
-if (newGameBtn) {
-    newGameBtn.addEventListener('click', () => {
-        if (navigator.vibrate) navigator.vibrate(40);
-        startIntroScreen();
-    });
+    }, 500);
 }
 
 // ============================================================
-//  CENA THREE.JS — ESTACIONAMENTO DA AETHER CORP
+//  MÓDULO 5 — CENA THREE.JS (ESTACIONAMENTO)
 // ============================================================
 
 function initThreeScene() {
+    console.log('[3D] Iniciando cena Three.js');
     showScreen('sceneContainer');
 
-    // Carrega Three.js dinamicamente (sem biblioteca local)
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-    script.onload = buildScene;
+    if (typeof THREE !== 'undefined') {
+        console.log('[3D] Three.js já carregado');
+        buildScene();
+        return;
+    }
+
+    const script   = document.createElement('script');
+    script.src     = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    script.onload  = () => {
+        console.log('[3D] Three.js carregado com sucesso');
+        buildScene();
+    };
     script.onerror = () => {
-        console.warn('Three.js não carregou. Verifique conexão.');
+        console.error('[3D] Falha ao carregar Three.js');
     };
     document.head.appendChild(script);
 }
 
 function buildScene() {
-    const canvas  = document.getElementById('threeCanvas');
-    const W       = window.innerWidth;
-    const H       = window.innerHeight;
+    const canvas = document.getElementById('threeCanvas');
+    if (!canvas) {
+        console.error('[3D] Canvas não encontrado');
+        return;
+    }
 
-    // --- RENDERER ---
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
+    // --- Renderer ---
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
     renderer.setClearColor(0x050a05);
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    // --- CENA ---
+    // --- Cena ---
     const scene = new THREE.Scene();
     scene.fog   = new THREE.FogExp2(0x050a05, 0.07);
 
-    // --- CÂMERA ---
+    // --- Câmera ---
     const camera = new THREE.PerspectiveCamera(70, W / H, 0.1, 80);
     camera.position.set(0, 1.7, 0);
 
-    // -------------------------------------------------------
-    //  GEOMETRIAS
-    // -------------------------------------------------------
-
-    // Asfalto molhado
+    // --- Asfalto molhado ---
     const floorGeo = new THREE.PlaneGeometry(80, 80, 30, 30);
     const floorMat = new THREE.MeshStandardMaterial({
-        color: 0x080808,
+        color:     0x080808,
         roughness: 0.1,
         metalness: 0.8
     });
     const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.rotation.x = -Math.PI / 2;
+    floor.rotation.x    = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Reflexo verde no asfalto (overlay plano)
+    // --- Reflexo verde no asfalto ---
     const reflectGeo = new THREE.PlaneGeometry(80, 80);
     const reflectMat = new THREE.MeshBasicMaterial({
-        color: 0x001a00,
+        color:       0x001a00,
         transparent: true,
-        opacity: 0.35
+        opacity:     0.35
     });
     const reflect = new THREE.Mesh(reflectGeo, reflectMat);
     reflect.rotation.x = -Math.PI / 2;
     reflect.position.y = 0.01;
     scene.add(reflect);
 
-    // Função para criar postes de luz verde ao longe
+    // --- Postes de luz verde ---
     function createLampPost(x, z) {
         const group = new THREE.Group();
 
-        // Poste
-        const postGeo = new THREE.CylinderGeometry(0.05, 0.05, 4, 6);
-        const postMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-        const post    = new THREE.Mesh(postGeo, postMat);
-        post.position.y = 2;
-        group.add(post);
+        const postMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.05, 0.05, 4, 6),
+            new THREE.MeshStandardMaterial({ color: 0x111111 })
+        );
+        postMesh.position.y = 2;
+        group.add(postMesh);
 
-        // Cúpula da lâmpada
-        const domeGeo = new THREE.SphereGeometry(0.18, 8, 8);
-        const domeMat = new THREE.MeshStandardMaterial({
-            color: 0x00ff88,
-            emissive: 0x00ff44,
-            emissiveIntensity: 2
-        });
-        const dome = new THREE.Mesh(domeGeo, domeMat);
-        dome.position.y = 4.2;
-        group.add(dome);
+        const domeMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(0.18, 8, 8),
+            new THREE.MeshStandardMaterial({
+                color:             0x00ff88,
+                emissive:          0x00ff44,
+                emissiveIntensity: 2
+            })
+        );
+        domeMesh.position.y = 4.2;
+        group.add(domeMesh);
 
-        // Luz pontual
         const light = new THREE.PointLight(0x00ff44, 1.2, 12);
-        light.position.y = 4.1;
-        light.castShadow = true;
+        light.position.y  = 4.1;
+        light.castShadow  = true;
         group.add(light);
 
         group.position.set(x, 0, z);
         scene.add(group);
     }
 
-    // Postes ao longo do estacionamento
     createLampPost(-6,  -8);
     createLampPost( 6,  -8);
     createLampPost(-6, -18);
@@ -945,58 +414,57 @@ function buildScene() {
     createLampPost(-6, -28);
     createLampPost( 6, -28);
 
-    // Luz ambiente fraquíssima
-    const ambientLight = new THREE.AmbientLight(0x001a00, 0.4);
-    scene.add(ambientLight);
+    // --- Iluminação ambiente ---
+    scene.add(new THREE.AmbientLight(0x001a00, 0.4));
 
-    // Luz direcional suave (simula luar neblina)
     const dirLight = new THREE.DirectionalLight(0x003311, 0.3);
     dirLight.position.set(0, 10, -5);
     scene.add(dirLight);
 
-    // Cercas / muros ao fundo
+    // --- Muros ---
     function createWall(x, z, w, h, d) {
-        const geo = new THREE.BoxGeometry(w, h, d);
-        const mat = new THREE.MeshStandardMaterial({
-            color: 0x0a0a0a,
-            roughness: 0.9
-        });
-        const mesh = new THREE.Mesh(geo, mat);
+        const mesh = new THREE.Mesh(
+            new THREE.BoxGeometry(w, h, d),
+            new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.9 })
+        );
         mesh.position.set(x, h / 2, z);
         mesh.receiveShadow = true;
         mesh.castShadow    = true;
         scene.add(mesh);
     }
 
-    createWall(0,   -38, 40, 3, 0.5);  // Muro fundo
-    createWall(-20, -20,  0.5, 3, 20); // Muro esquerdo
-    createWall( 20, -20,  0.5, 3, 20); // Muro direito
+    createWall(  0, -38, 40, 3, 0.5);
+    createWall(-20, -20, 0.5, 3, 20);
+    createWall( 20, -20, 0.5, 3, 20);
 
-    // Partículas de neblina / chuva fina
-    const particleCount = 300;
-    const positions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount; i++) {
+    // --- Partículas de chuva fina ---
+    const PARTICLE_COUNT = 300;
+    const positions      = new Float32Array(PARTICLE_COUNT * 3);
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
         positions[i * 3]     = (Math.random() - 0.5) * 30;
         positions[i * 3 + 1] = Math.random() * 6;
         positions[i * 3 + 2] = (Math.random() - 0.5) * 30 - 5;
     }
 
     const particleGeo = new THREE.BufferGeometry();
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute(
+        'position',
+        new THREE.BufferAttribute(positions, 3)
+    );
 
-    const particleMat = new THREE.PointsMaterial({
-        color: 0x00ff44,
-        size: 0.04,
-        transparent: true,
-        opacity: 0.25
-    });
-
-    const particles = new THREE.Points(particleGeo, particleMat);
+    const particles = new THREE.Points(
+        particleGeo,
+        new THREE.PointsMaterial({
+            color:       0x00ff44,
+            size:        0.04,
+            transparent: true,
+            opacity:     0.25
+        })
+    );
     scene.add(particles);
 
-    // -------------------------------------------------------
-    //  CONTROLES TOUCH MOBILE
-    // -------------------------------------------------------
+    // --- Controles Touch ---
     const input = {
         moving:      false,
         looking:     false,
@@ -1007,44 +475,43 @@ function buildScene() {
     const touchLeft  = document.getElementById('touchLeft');
     const touchRight = document.getElementById('touchRight');
 
-    // Zona esquerda — andar
-    touchLeft.addEventListener('touchstart', e => {
-        e.preventDefault();
-        input.moving = true;
-    }, { passive: false });
+    if (touchLeft) {
+        touchLeft.addEventListener('touchstart', e => {
+            e.preventDefault();
+            input.moving = true;
+            console.log('[3D] Touch: andando');
+        }, { passive: false });
 
-    touchLeft.addEventListener('touchend', () => {
-        input.moving = false;
-    });
+        touchLeft.addEventListener('touchend', () => {
+            input.moving = false;
+        });
+    }
 
-    // Zona direita — olhar
-    touchRight.addEventListener('touchstart', e => {
-        e.preventDefault();
-        input.looking    = true;
-        input.lastTouchX = e.touches[0].clientX;
-    }, { passive: false });
+    if (touchRight) {
+        touchRight.addEventListener('touchstart', e => {
+            e.preventDefault();
+            input.looking    = true;
+            input.lastTouchX = e.touches[0].clientX;
+            console.log('[3D] Touch: olhando');
+        }, { passive: false });
 
-    touchRight.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if (!input.looking) return;
-        const deltaX     = e.touches[0].clientX - input.lastTouchX;
-        input.lookDeltaX = deltaX;
-        input.lastTouchX = e.touches[0].clientX;
-    }, { passive: false });
+        touchRight.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (!input.looking) return;
+            input.lookDeltaX = e.touches[0].clientX - input.lastTouchX;
+            input.lastTouchX = e.touches[0].clientX;
+        }, { passive: false });
 
-    touchRight.addEventListener('touchend', () => {
-        input.looking    = false;
-        input.lookDeltaX = 0;
-    });
+        touchRight.addEventListener('touchend', () => {
+            input.looking    = false;
+            input.lookDeltaX = 0;
+        });
+    }
 
-    // -------------------------------------------------------
-    //  ESTADO DA CÂMERA
-    // -------------------------------------------------------
-    let yaw = 0; // Rotação horizontal acumulada
+    // --- Estado da câmera ---
+    let yaw = 0;
 
-    // -------------------------------------------------------
-    //  LOOP DE ANIMAÇÃO
-    // -------------------------------------------------------
+    // --- Loop de animação ---
     const clock = new THREE.Clock();
 
     function animate() {
@@ -1052,30 +519,24 @@ function buildScene() {
 
         const delta = clock.getDelta();
 
-        // Andar para frente
         if (input.moving) {
-            const speed    = 3.5 * delta;
+            const speed = 3.5 * delta;
             camera.position.x -= Math.sin(yaw) * speed;
             camera.position.z -= Math.cos(yaw) * speed;
-
-            // Limite da cena
-            camera.position.z = Math.max(camera.position.z, -34);
+            camera.position.z  = Math.max(camera.position.z, -34);
         }
 
-        // Girar câmera (olhar)
         if (input.looking && Math.abs(input.lookDeltaX) > 0.5) {
-            yaw -= input.lookDeltaX * 0.003;
+            yaw              -= input.lookDeltaX * 0.003;
             camera.rotation.y = yaw;
             input.lookDeltaX  = 0;
         }
 
-        // Animar partículas (chuva leve caindo)
+        // Chuva caindo
         const pos = particleGeo.attributes.position.array;
-        for (let i = 0; i < particleCount; i++) {
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
             pos[i * 3 + 1] -= 0.03;
-            if (pos[i * 3 + 1] < 0) {
-                pos[i * 3 + 1] = 6;
-            }
+            if (pos[i * 3 + 1] < 0) pos[i * 3 + 1] = 6;
         }
         particleGeo.attributes.position.needsUpdate = true;
 
@@ -1083,8 +544,9 @@ function buildScene() {
     }
 
     animate();
+    console.log('[3D] Loop de animação iniciado');
 
-    // Resize responsivo
+    // --- Resize responsivo ---
     window.addEventListener('resize', () => {
         const nW = window.innerWidth;
         const nH = window.innerHeight;
@@ -1093,3 +555,215 @@ function buildScene() {
         renderer.setSize(nW, nH);
     });
 }
+
+// ============================================================
+//  MÓDULO 6 — HUD DO JOGO (Deep Seek — intocado)
+//  As funções abaixo são do módulo de câmeras original.
+//  Preservadas sem alteração.
+// ============================================================
+
+const HEAT_INCREASE_RATE  = 0.5;
+const HEAT_DECREASE_RATE  = 1.5;
+const MAX_HEAT            = 100;
+const OVERHEAT_COOLDOWN_TIME = 3000;
+
+let gameState = {
+    currentCamera: null,
+    monitorOpen:   false,
+    heat:          0,
+    isOverheated:  false,
+    gameStartTime: Date.now(),
+    lastUpdateTime: Date.now()
+};
+
+const cameras = {
+    1: { name: 'ENTRADA',         description: 'Porta principal do Data Center. Acesso bloqueado.',      hasEntity: false },
+    2: { name: 'CORREDOR A',      description: 'Corredor leste. Iluminação intermitente.',               hasEntity: false },
+    3: { name: 'SALA SERVIDORES', description: 'Núcleo principal. Racks ativos detectados.',             hasEntity: false },
+    4: { name: 'CORREDOR B',      description: 'Corredor oeste. Temperatura elevada.',                   hasEntity: false },
+    5: { name: 'DEPÓSITO',        description: 'Área de armazenamento. Movimento detectado.',            hasEntity: true  }
+};
+
+function getGameEl(id) {
+    return document.getElementById(id);
+}
+
+function switchCamera(camNumber) {
+    if (gameState.isOverheated) return;
+
+    gameState.currentCamera = camNumber;
+    gameState.monitorOpen   = true;
+
+    const camera = cameras[camNumber];
+    getGameEl('cameraLabel').textContent = `CAM ${String(camNumber).padStart(2, '0')} - ${camera.name}`;
+    updateCameraTime();
+
+    getGameEl('cameraView').innerHTML = `
+        <div style="text-align:center; padding:20px;">
+            <p style="font-size:15px; margin-bottom:15px; text-shadow:0 0 10px #00ff00;">
+                ${camera.description}
+            </p>
+            <div style="border:1px solid #00ff00; padding:15px; margin-top:20px;
+                        background:rgba(0,255,0,0.05);">
+                <p style="font-size:12px; margin-bottom:8px;">STATUS: ATIVO</p>
+                <p style="font-size:12px; margin-bottom:8px;">RESOLUÇÃO: 640x480</p>
+                <p style="font-size:12px;">MODO: INFRARED</p>
+            </div>
+            ${camera.hasEntity ? `
+                <div style="margin-top:20px; padding:10px; border:2px solid #ff0000;
+                            background:rgba(255,0,0,0.1);">
+                    <p style="color:#ff0000; font-size:14px; text-shadow:0 0 8px #ff0000;
+                               animation:blink 1s infinite;">
+                        ⚠ MOVIMENTO DETECTADO ⚠
+                    </p>
+                </div>` : ''}
+        </div>`;
+
+    vibrate(50);
+}
+
+function closeMonitorView() {
+    gameState.monitorOpen   = false;
+    gameState.currentCamera = null;
+
+    getGameEl('cameraLabel').textContent = 'SYSTEM OFFLINE';
+    getGameEl('cameraTime').textContent  = '--:--';
+
+    getGameEl('cameraView').innerHTML = `
+        <div class="boot-screen">
+            <pre class="ascii-art">
+███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗
+██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗
+███████╗█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝
+╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗
+███████║███████╗██║  ██║ ╚████╔╝ ███████╗██║  ██║
+╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝
+            </pre>
+            <p class="boot-text">SECURITY MONITORING SYSTEM v1.4</p>
+            <p class="boot-text blink">PRESS ANY CAMERA TO BEGIN...</p>
+        </div>`;
+
+    vibrate(30);
+}
+
+function updateHeat(deltaTime) {
+    if (gameState.isOverheated) return;
+
+    const ds = deltaTime / 1000;
+
+    if (gameState.monitorOpen) {
+        gameState.heat = Math.min(MAX_HEAT, gameState.heat + HEAT_INCREASE_RATE * ds);
+    } else {
+        gameState.heat = Math.max(0, gameState.heat - HEAT_DECREASE_RATE * ds);
+    }
+
+    const pct = Math.round(gameState.heat);
+    getGameEl('heatBar').style.width    = pct + '%';
+    getGameEl('heatValue').textContent  = pct + '%';
+
+    if (gameState.heat >= MAX_HEAT) triggerOverheat();
+}
+
+function triggerOverheat() {
+    gameState.isOverheated = true;
+    gameState.monitorOpen  = false;
+
+    getGameEl('overheatWarning').classList.add('active');
+    vibrate([100, 50, 100, 50, 100]);
+
+    let progress = 0;
+    const iv = setInterval(() => {
+        progress += 100;
+        getGameEl('cooldownBar').style.width =
+            ((progress / OVERHEAT_COOLDOWN_TIME) * 100) + '%';
+
+        if (progress >= OVERHEAT_COOLDOWN_TIME) {
+            clearInterval(iv);
+            endOverheat();
+        }
+    }, 100);
+}
+
+function endOverheat() {
+    gameState.isOverheated = false;
+    gameState.heat         = 0;
+
+    getGameEl('overheatWarning').classList.remove('active');
+    getGameEl('cooldownBar').style.width = '0%';
+
+    closeMonitorView();
+}
+
+function updateGameTime() {
+    const elapsed = Date.now() - gameState.gameStartTime;
+    const m = Math.floor(elapsed / 60000);
+    const s = Math.floor((elapsed % 60000) / 1000);
+    getGameEl('gameTime').textContent =
+        String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+function updateCameraTime() {
+    const now = new Date();
+    const hh  = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    getGameEl('cameraTime').textContent = `${hh}:${min}`;
+}
+
+function startGameLoop() {
+    function loop() {
+        const now   = Date.now();
+        const delta = now - gameState.lastUpdateTime;
+
+        updateHeat(delta);
+        if (gameState.monitorOpen) updateCameraTime();
+
+        gameState.lastUpdateTime = now;
+        requestAnimationFrame(loop);
+    }
+    loop();
+}
+
+function initGameHUD() {
+    document.querySelectorAll('.cam-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchCamera(parseInt(btn.dataset.cam));
+        });
+    });
+
+    const closeMonitorBtn = document.getElementById('closeMonitor');
+    if (closeMonitorBtn) {
+        closeMonitorBtn.addEventListener('click', closeMonitorView);
+    }
+
+    setInterval(updateGameTime, 1000);
+    startGameLoop();
+
+    console.log('[GAME] HUD iniciado');
+}
+
+// ============================================================
+//  MÓDULO 7 — UTILITÁRIOS
+// ============================================================
+
+function vibrate(pattern) {
+    const toggle = document.getElementById('vibration');
+    if (!toggle || !toggle.checked) return;
+    if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+// ============================================================
+//  BOOT — Inicialização geral
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('[BOOT] The Server Room v1.1.0 iniciando...');
+
+    initMenu();
+    initSettings();
+    initGameHUD();
+
+    // Tela inicial
+    showScreen('mainMenu');
+
+    console.log('[BOOT] Sistema pronto');
+});
