@@ -108,8 +108,9 @@ html, body {
     }
 }
 
-/* ================================================
-   MENU PRINCIPAL
+/* =====================================
+   MENU PRINCIPAL — CORREÇÃO DE CENTRALIZAÇÃO
+   Substitui o bloco anterior do .menu-wrapper
 ================================================ */
 #mainMenu {
     background: #0a0a0a;
@@ -122,21 +123,32 @@ html, body {
     position: relative;
     width: 100%;
     max-width: 480px;
+
+    /* Garante altura total independente da proporção */
+    min-height: 100vh;
     height: 100%;
+
+    /* Centralização absoluta vertical e horizontal */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding: 60px 24px 24px;
+    justify-content: center;
+
+    /* Espaçamento interno seguro para notch e bordas */
+    padding: 70px 24px 28px;
+
+    /* Gap entre os 3 blocos: header, buttons, footer */
+    gap: 32px;
 }
 
-/* Botão de Configurações — FAB fixo no topo direito */
+/* Settings FAB — completamente fora do fluxo,
+   nunca empurra o layout */
 .settings-fab {
     position: absolute;
     top: 16px;
     right: 16px;
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     background: linear-gradient(180deg, #002200 0%, #001100 100%);
     border: 2px solid #00ff00;
     color: #00ff00;
@@ -149,6 +161,9 @@ html, body {
     touch-action: manipulation;
     transition: all 0.2s;
     flex-shrink: 0;
+
+    /* Garante que nunca entre no fluxo flex */
+    align-self: auto;
 }
 
 .settings-fab:active {
@@ -162,14 +177,14 @@ html, body {
     pointer-events: none;
 }
 
-/* Cabeçalho do Menu */
+/* Cabeçalho — não cresce, não encolhe */
 .menu-header {
     width: 100%;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     flex-shrink: 0;
 }
 
@@ -188,7 +203,7 @@ html, body {
 
 .game-title {
     font-size: 38px;
-    line-height: 1.1;
+    line-height: 1.15;
     color: #00ff00;
     text-shadow:
         0 0 10px #00ff00,
@@ -211,7 +226,7 @@ html, body {
     text-shadow: 0 0 5px #00ff00;
 }
 
-/* Botões do Menu */
+/* Botões — bloco central, ocupa o espaço necessário */
 .menu-buttons {
     width: 100%;
     display: flex;
@@ -249,10 +264,10 @@ html, body {
     transform: scale(0.97);
 }
 
-/* Estado desabilitado — sem brilho neon */
+/* Continuar desabilitado — sem brilho neon */
 .menu-btn:disabled {
     background: #0a0a0a;
-    border-color: #1a1a1a;
+    border-color: #1c1c1c;
     color: #2a2a2a;
     box-shadow: none;
     cursor: not-allowed;
@@ -276,7 +291,6 @@ html, body {
     pointer-events: none;
 }
 
-/* Tag "SEM SAVE" no botão Continuar */
 .btn-tag {
     position: absolute;
     right: 14px;
@@ -286,7 +300,6 @@ html, body {
     pointer-events: none;
 }
 
-/* Botão primário — destaque sutil */
 .menu-btn.primary {
     border-color: #00ff00;
     box-shadow:
@@ -294,14 +307,16 @@ html, body {
         inset 0 0 6px rgba(0, 255, 0, 0.05);
 }
 
-/* Rodapé do Menu */
+/* Rodapé — fixo na base, não empurra botões */
 .menu-footer {
+    width: 100%;
     text-align: center;
-    padding: 8px;
-    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(0, 255, 0, 0.1);
+    padding-top: 14px;
 }
 
 .menu-footer p {
@@ -312,8 +327,52 @@ html, body {
 
 .version-tag {
     font-size: 9px;
-    color: #005500;
+    color: #004400;
     letter-spacing: 2px;
+}
+
+/* ================================================
+   RESPONSIVIDADE DO MENU
+================================================ */
+
+/* Telas muito pequenas — 360px ou menos */
+@media (max-width: 360px) {
+    .menu-wrapper {
+        gap: 24px;
+        padding: 64px 18px 20px;
+    }
+
+    .game-title {
+        font-size: 30px;
+    }
+
+    .menu-btn {
+        font-size: 14px;
+        padding: 15px 16px;
+    }
+}
+
+/* Telas altas — 20:9 e similares (ex: Realme C53) */
+@media (min-height: 750px) {
+    .menu-wrapper {
+        gap: 40px;
+    }
+
+    .menu-btn {
+        padding: 22px 20px;
+        font-size: 17px;
+    }
+}
+
+/* Telas muito altas — acima de 900px */
+@media (min-height: 900px) {
+    .menu-wrapper {
+        gap: 48px;
+    }
+
+    .game-title {
+        font-size: 44px;
+    }
 }
 
 /* ================================================
