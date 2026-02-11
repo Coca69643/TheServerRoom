@@ -1,12 +1,3 @@
-/* ================================================
-   THE SERVER ROOM v1.1.0
-   Duck Dream Studios
-   CSS COMPLETO - SEM OMISSÕES
-================================================ */
-
-/* ================================================
-   RESET E BASE
-================================================ */
 * {
     margin: 0;
     padding: 0;
@@ -48,7 +39,7 @@ html, body {
 /* ================================================
    PATCH — BLOQUEIO LANDSCAPE
 ================================================ */
-@media screen and (orientation: landscape) and (max-height: 450px) {
+@media screen and (orientation: portrait) and (max-height: 450px) {
     body::before {
         content: '';
         position: fixed;
