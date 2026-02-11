@@ -1,4 +1,10 @@
 /* ================================================
+   THE SERVER ROOM v1.1.0
+   Duck Dream Studios
+   CSS COMPLETO - SEM OMISSÕES
+================================================ */
+
+/* ================================================
    RESET E BASE
 ================================================ */
 * {
@@ -21,8 +27,6 @@ html, body {
 
 /* ================================================
    SISTEMA DE TELAS
-   Todas as telas partem de display:none
-   Apenas a que tiver .active aparece
 ================================================ */
 .screen {
     position: fixed;
@@ -41,8 +45,10 @@ html, body {
     opacity: 1;
 }
 
-/* Limpa qualquer bloqueio anterior e define apenas para modo EM PÉ */
-@media screen and (orientation: portrait) {
+/* ================================================
+   PATCH — BLOQUEIO LANDSCAPE
+================================================ */
+@media screen and (orientation: landscape) and (max-height: 450px) {
     body::before {
         content: '';
         position: fixed;
@@ -54,43 +60,6 @@ html, body {
         z-index: 99998;
     }
 
-    body::after {
-        content: '⟳ GIRE PARA O MODO PAISAGEM';
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #00ff00;
-        font-family: 'Courier New', monospace;
-        font-size: 16px;
-        text-align: center;
-        text-shadow: 0 0 10px #00ff00;
-        z-index: 99999;
-        white-space: nowrap;
-    }
-}
-
-/* Garante que em modo DEITADO nada bloqueie a tela */
-@media screen and (orientation: landscape) {
-    body::before, body::after {
-        display: none !important;
-    }
-}
-
-    body::after {
-        content: '⟳  GIRE PARA O MODO PAISAGEM';
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #00ff00;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        text-align: center;
-        text-shadow: 0 0 10px #00ff00;
-        z-index: 99999;
-    }
-}
     body::after {
         content: '⟳  GIRE O DISPOSITIVO PARA CONTINUAR';
         position: fixed;
@@ -108,41 +77,29 @@ html, body {
     }
 }
 
-/* =====================================
-   MENU PRINCIPAL — CORREÇÃO DE CENTRALIZAÇÃO
-   Substitui o bloco anterior do .menu-wrapper
+/* ================================================
+   MENU PRINCIPAL — CENTRALIZADO
 ================================================ */
 #mainMenu {
     background: #0a0a0a;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
 }
 
 .menu-wrapper {
     position: relative;
     width: 100%;
     max-width: 480px;
-
-    /* Garante altura total independente da proporção */
     min-height: 100vh;
     height: 100%;
-
-    /* Centralização absoluta vertical e horizontal */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    /* Espaçamento interno seguro para notch e bordas */
-    padding: 70px 24px 28px;
-
-    /* Gap entre os 3 blocos: header, buttons, footer */
-    gap: 32px;
+    padding: 70px 24px 24px;
+    gap: 36px;
 }
 
-/* Settings FAB — completamente fora do fluxo,
-   nunca empurra o layout */
 .settings-fab {
     position: absolute;
     top: 16px;
@@ -161,30 +118,26 @@ html, body {
     touch-action: manipulation;
     transition: all 0.2s;
     flex-shrink: 0;
-
-    /* Garante que nunca entre no fluxo flex */
-    align-self: auto;
 }
 
 .settings-fab:active {
     background: #003300;
-    box-shadow: 0 0 16px rgba(0, 255, 0, 0.6);
-    transform: scale(0.93);
+    box-shadow: 0 0 18px rgba(0, 255, 0, 0.65);
+    transform: scale(0.92);
 }
 
 .fab-icon {
-    text-shadow: 0 0 8px #00ff00;
+    text-shadow: 0 0 10px #00ff00;
     pointer-events: none;
 }
 
-/* Cabeçalho — não cresce, não encolhe */
 .menu-header {
     width: 100%;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     flex-shrink: 0;
 }
 
@@ -198,40 +151,45 @@ html, body {
         #00ff00 70%,
         transparent 100%
     );
-    box-shadow: 0 0 8px #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    animation: bar-pulse 3s ease-in-out infinite;
+}
+
+@keyframes bar-pulse {
+    0%, 100% { opacity: 0.8; }
+    50%       { opacity: 1; }
 }
 
 .game-title {
-    font-size: 38px;
+    font-size: 40px;
     line-height: 1.15;
     color: #00ff00;
     text-shadow:
-        0 0 10px #00ff00,
-        0 0 22px #00ff00,
-        0 0 40px #00ff00;
-    letter-spacing: 5px;
+        0 0 12px #00ff00,
+        0 0 24px #00ff00,
+        0 0 45px #00ff00;
+    letter-spacing: 6px;
     animation: title-glow 2.5s ease-in-out infinite alternate;
 }
 
 @keyframes title-glow {
-    0%   { text-shadow: 0 0 10px #00ff00, 0 0 22px #00ff00, 0 0 40px #00ff00; }
-    100% { text-shadow: 0 0 16px #00ff00, 0 0 34px #00ff00, 0 0 60px #00ff00; }
+    0%   { text-shadow: 0 0 12px #00ff00, 0 0 24px #00ff00, 0 0 45px #00ff00; }
+    100% { text-shadow: 0 0 18px #00ff00, 0 0 36px #00ff00, 0 0 65px #00ff00; }
 }
 
 .company-name {
     font-size: 11px;
     color: #00aa00;
     letter-spacing: 2px;
-    opacity: 0.75;
-    text-shadow: 0 0 5px #00ff00;
+    opacity: 0.8;
+    text-shadow: 0 0 6px #00ff00;
 }
 
-/* Botões — bloco central, ocupa o espaço necessário */
 .menu-buttons {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     flex-shrink: 0;
 }
 
@@ -241,7 +199,7 @@ html, body {
     background: linear-gradient(180deg, #002200 0%, #001100 100%);
     border: 2px solid #00ff00;
     color: #00ff00;
-    padding: 18px 20px;
+    padding: 20px 22px;
     font-family: 'Courier New', monospace;
     font-size: 16px;
     letter-spacing: 2px;
@@ -250,7 +208,7 @@ html, body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.15);
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.2);
     transition: all 0.25s;
     touch-action: manipulation;
     flex-shrink: 0;
@@ -259,15 +217,14 @@ html, body {
 .menu-btn:active:not(:disabled) {
     background: #003300;
     box-shadow:
-        0 0 20px rgba(0, 255, 0, 0.5),
-        inset 0 0 12px rgba(0, 255, 0, 0.2);
+        0 0 22px rgba(0, 255, 0, 0.55),
+        inset 0 0 12px rgba(0, 255, 0, 0.25);
     transform: scale(0.97);
 }
 
-/* Continuar desabilitado — sem brilho neon */
 .menu-btn:disabled {
     background: #0a0a0a;
-    border-color: #1c1c1c;
+    border-color: #1a1a1a;
     color: #2a2a2a;
     box-shadow: none;
     cursor: not-allowed;
@@ -281,19 +238,19 @@ html, body {
 }
 
 .btn-icon {
-    font-size: 20px;
-    text-shadow: 0 0 8px #00ff00;
+    font-size: 22px;
+    text-shadow: 0 0 10px #00ff00;
     pointer-events: none;
 }
 
 .btn-text {
-    text-shadow: 0 0 5px #00ff00;
+    text-shadow: 0 0 6px #00ff00;
     pointer-events: none;
 }
 
 .btn-tag {
     position: absolute;
-    right: 14px;
+    right: 16px;
     font-size: 9px;
     color: #1a1a1a;
     letter-spacing: 1px;
@@ -303,75 +260,71 @@ html, body {
 .menu-btn.primary {
     border-color: #00ff00;
     box-shadow:
-        0 0 14px rgba(0, 255, 0, 0.25),
-        inset 0 0 6px rgba(0, 255, 0, 0.05);
+        0 0 16px rgba(0, 255, 0, 0.3),
+        inset 0 0 8px rgba(0, 255, 0, 0.08);
 }
 
-/* Rodapé — fixo na base, não empurra botões */
 .menu-footer {
     width: 100%;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     flex-shrink: 0;
-    border-top: 1px solid rgba(0, 255, 0, 0.1);
-    padding-top: 14px;
+    border-top: 1px solid rgba(0, 255, 0, 0.15);
+    padding-top: 16px;
 }
 
 .menu-footer p {
     font-size: 10px;
     color: #00aa00;
-    opacity: 0.55;
+    opacity: 0.6;
 }
 
 .version-tag {
     font-size: 9px;
-    color: #004400;
+    color: #005500;
     letter-spacing: 2px;
 }
 
 /* ================================================
    RESPONSIVIDADE DO MENU
 ================================================ */
-
-/* Telas muito pequenas — 360px ou menos */
 @media (max-width: 360px) {
     .menu-wrapper {
-        gap: 24px;
+        gap: 28px;
         padding: 64px 18px 20px;
     }
 
     .game-title {
-        font-size: 30px;
+        font-size: 32px;
+        letter-spacing: 4px;
     }
 
     .menu-btn {
         font-size: 14px;
-        padding: 15px 16px;
+        padding: 16px 18px;
     }
 }
 
-/* Telas altas — 20:9 e similares (ex: Realme C53) */
 @media (min-height: 750px) {
     .menu-wrapper {
-        gap: 40px;
+        gap: 44px;
     }
 
     .menu-btn {
-        padding: 22px 20px;
+        padding: 22px 24px;
         font-size: 17px;
     }
 }
 
-/* Telas muito altas — acima de 900px */
 @media (min-height: 900px) {
     .menu-wrapper {
-        gap: 48px;
+        gap: 52px;
     }
 
     .game-title {
-        font-size: 44px;
+        font-size: 46px;
     }
 }
 
@@ -438,7 +391,6 @@ html, body {
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
-/* Abas */
 .settings-tabs {
     display: flex;
     background: #000;
@@ -475,7 +427,6 @@ html, body {
     border-bottom: 2px solid #00ff00;
 }
 
-/* Conteúdo das Abas */
 .settings-content {
     flex: 1;
     overflow-y: auto;
@@ -515,7 +466,6 @@ html, body {
     text-align: right;
 }
 
-/* Toggle Switch */
 .toggle-switch {
     position: relative;
     width: 52px;
@@ -533,7 +483,10 @@ html, body {
 .toggle-slider {
     position: absolute;
     cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: #001a00;
     border: 2px solid #003300;
     transition: 0.3s;
@@ -561,7 +514,6 @@ html, body {
     box-shadow: 0 0 10px #00ff00;
 }
 
-/* Slider */
 .slider {
     width: 100%;
     height: 8px;
@@ -940,8 +892,10 @@ html, body {
 
 .scanlines {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: repeating-linear-gradient(
         0deg,
         rgba(0, 0, 0, 0.13),
@@ -961,8 +915,10 @@ html, body {
 
 .crt-glow {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: radial-gradient(
         ellipse at center,
         rgba(0, 255, 0, 0.04) 0%,
@@ -974,8 +930,10 @@ html, body {
 
 .display-content {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     padding: 12px;
     z-index: 1;
 }
@@ -1074,7 +1032,7 @@ html, body {
 
 .cam-button,
 .system-button {
-    background: linear-gradient(180deg, #002200 0%, #001100 100%);
+    background: linear-gradient(180deg, #002200 0%, #0011
     border: 2px solid #00ff00;
     color: #00ff00;
     padding: 10px 6px;
@@ -1108,7 +1066,7 @@ html, body {
 }
 
 .system-button {
-    background: linear-gradient(180deg,
+    background: linear-gradient(180deg, #1a0000 0%, #0d0000 100%);
     border-color: #ff0000;
     color: #ff0000;
 }
@@ -1127,8 +1085,10 @@ html, body {
 
 .overheat-warning {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.96);
     display: none;
     align-items: center;
@@ -1187,19 +1147,30 @@ html, body {
 }
 
 /* ================================================
-   RESPONSIVIDADE
+   RESPONSIVIDADE GLOBAL
 ================================================ */
 @media (max-width: 360px) {
-    .game-title    { font-size: 30px; }
-    .ascii-art     { font-size: 4.5px; }
-    .cam-number    { font-size: 15px; }
-    .cam-name      { font-size: 7px; }
-    .menu-btn      { font-size: 14px; padding: 15px; }
-    .typewriter-text { font-size: 12px; line-height: 1.8; }
+    .ascii-art {
+        font-size: 4.5px;
+    }
+
+    .cam-number {
+        font-size: 15px;
+    }
+
+    .cam-name {
+        font-size: 7px;
+    }
+
+    .typewriter-text {
+        font-size: 12px;
+        line-height: 1.8;
+    }
 }
 
 @media (min-height: 750px) {
-    .menu-btn      { padding: 22px 20px; }
     .cam-button,
-    .system-button { padding: 14px 8px; }
+    .system-button {
+        padding: 14px 8px;
+    }
 }
